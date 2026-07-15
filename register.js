@@ -43,6 +43,7 @@
     if (!data.ageRange) { setInvalid('field-age', true); ok = false; } else setInvalid('field-age', false);
     if (!data.gender) { setInvalid('field-gender', true); ok = false; } else setInvalid('field-gender', false);
     if (!data.position.length) { setInvalid('field-position', true); ok = false; } else setInvalid('field-position', false);
+    if (!data.feeOption) { setInvalid('field-fee-option', true); ok = false; } else setInvalid('field-fee-option', false);
 
     const consentOk = data.consent1 && data.consent2 && data.consent3;
     if (!consentOk) { setInvalid('field-consent', true); ok = false; } else setInvalid('field-consent', false);
@@ -52,7 +53,7 @@
 
   function makeId() {
     const n = Math.floor(1000 + Math.random() * 9000);
-    return 'MXC-' + n + '-' + new Date().getFullYear();
+    return 'SVL-' + n + '-' + new Date().getFullYear();
   }
 
   // ---------- Netlify Forms submission ----------
@@ -72,6 +73,7 @@
       ageRange: record.ageRange,
       gender: record.gender,
       position: record.position.join(', '),
+      feeOption: record.feeOption,
       consent1: record.consent1 ? 'yes' : 'no',
       consent2: record.consent2 ? 'yes' : 'no',
       consent3: record.consent3 ? 'yes' : 'no',
@@ -95,6 +97,7 @@
       ageRange: (form.querySelector('input[name="ageRange"]:checked') || {}).value || '',
       gender: (form.querySelector('input[name="gender"]:checked') || {}).value || '',
       position: posCheckboxes().filter(cb => cb.checked).map(cb => cb.value),
+      feeOption: (form.querySelector('input[name="feeOption"]:checked') || {}).value || '',
       consent1: document.getElementById('consent1').checked,
       consent2: document.getElementById('consent2').checked,
       consent3: document.getElementById('consent3').checked,
@@ -122,15 +125,15 @@
       .then(() => {
         document.getElementById('successId').textContent = id;
         document.getElementById('successName').textContent =
-          `Thanks, ${data.fullName.split(' ')[0]} — you're in the Mixer Cup player pool. ` +
-          `Your team gets decided on auction night, and we'll follow up about the $50 entry fee.`;
+          `Thanks, ${data.fullName.split(' ')[0]} — you're in the SVL player pool. ` +
+          `Your selected option is ${data.feeOption}. Payment details will be informed later based on responses.`;
 
         document.getElementById('formView').style.display = 'none';
         document.getElementById('successView').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Register — pay $50 to confirm';
+        submitBtn.textContent = 'Submit registration';
       });
   });
 

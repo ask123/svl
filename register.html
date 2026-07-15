@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register — Mixer Cup</title>
-<meta name="description" content="Register to play in Mixer Cup, the community volleyball auction league.">
+<title>Register — Sydney Volleyball League (SVL)</title>
+<meta name="description" content="Register for Sydney Volleyball League (SVL), choose your registration option, and join the live auction tournament.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <nav class="nav">
   <div class="wrap">
-    <a href="index.html" class="nav-mark"><span class="dot"></span> Mixer Cup</a>
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Sydney Volleyball League (SVL)</a>
     <div class="nav-links">
       <a href="index.html#concept">Concept</a>
       <a href="index.html#how-it-works">How it works</a>
       <a href="index.html#rules">Match rules</a>
-      <a href="index.html#prizes">Prizes</a>
+      <a href="index.html#prizes">Registration</a>
     </div>
     <a href="index.html" class="nav-cta">Back to overview</a>
   </div>
@@ -30,8 +30,9 @@
       <div id="formView">
         <div class="form-head">
           <span class="tag">Player registration</span>
-          <h1>Get on the board</h1>
-          <p>Fill this in once. You'll go into the player pool for auction night — your final team is decided there, not by you.</p>
+          <h1>Register for SVL</h1>
+          <p>Choose your registration option and complete the form once. You'll enter the player pool and teams will be formed through the live auction.</p>
+          <p style="margin-top:8px; font-size:14px;">For questions, message organisers on WhatsApp: <a href="https://wa.me/61458808512?text=Hi%20Sravan%2C%20I%20have%20a%20question%20about%20SVL%20registration." target="_blank" rel="noopener noreferrer">Sravan (0458808512)</a> or <a href="https://wa.me/61422024444?text=Hi%20Raghu%2C%20I%20have%20a%20question%20about%20SVL%20registration." target="_blank" rel="noopener noreferrer">Raghu (0422024444)</a>.</p>
         </div>
 
         <form id="regForm" class="card" novalidate name="registration" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
@@ -96,15 +97,25 @@
             <div class="field-error">Select at least one position.</div>
           </div>
 
+          <div class="field" id="field-fee-option">
+            <label class="flabel">Registration option</label>
+            <span class="fhint">Payment will be taken later. Choose the option you prefer now.</span>
+            <div class="pill-group" role="radiogroup" aria-label="Registration option">
+              <label class="pill-option"><input type="radio" name="feeOption" value="$50 - includes indoor court booking + winner/runner prize money"><span class="pill">$50 (includes indoor court booking + winner/runner prize money)</span></label>
+              <label class="pill-option"><input type="radio" name="feeOption" value="$30 - includes indoor court booking only"><span class="pill">$30 (indoor court booking only, no winner/runner prize money)</span></label>
+            </div>
+            <div class="field-error">Select one registration option.</div>
+          </div>
+
           <div class="field" id="field-consent">
             <label class="flabel">Before you register</label>
             <div class="consent-block">
               <input type="checkbox" id="consent1" name="consent1">
-              <label for="consent1"><strong>Community event, no insurance:</strong> I understand Mixer Cup is a community-organized recreational event, that no insurance cover is provided by the organizers, and that I participate entirely at my own risk.</label>
+              <label for="consent1"><strong>Community event, no insurance:</strong> I understand Sydney Volleyball League (SVL) is a community-organized recreational event, that no insurance cover is provided by the organizers, and that I participate entirely at my own risk.</label>
             </div>
             <div class="consent-block">
               <input type="checkbox" id="consent2" name="consent2">
-              <label for="consent2"><strong>Entry fee:</strong> I agree to pay the $50 registration fee to confirm my place in the player pool.</label>
+              <label for="consent2"><strong>Registration fee:</strong> I understand payment will be taken later, and the final amount details will be informed based on registration responses.</label>
             </div>
             <div class="consent-block">
               <input type="checkbox" id="consent3" name="consent3">
@@ -114,8 +125,8 @@
           </div>
 
           <div class="submit-row">
-            <button type="submit" class="btn-submit" id="submitBtn">Register — pay $50 to confirm</button>
-            <p class="form-note">This confirms your entry into the player pool. Payment instructions for the $50 fee will follow separately.</p>
+            <button type="submit" class="btn-submit" id="submitBtn">Submit registration</button>
+            <p class="form-note">This confirms your entry into the player pool. Payment will be taken later and the final amount details will be informed based on responses.</p>
           </div>
         </form>
       </div>
@@ -125,7 +136,7 @@
         <div class="success-shell">
           <div class="success-badge">✓</div>
           <h2>You're in the pool</h2>
-          <p id="successName">Thanks for registering. You're now in the Mixer Cup player pool — your team gets decided on auction night, and we'll be in touch about the $50 entry fee.</p>
+          <p id="successName">Thanks for registering. You're now in the SVL player pool. Teams will be decided on auction night, and payment details will be shared later.</p>
           <div class="success-id" id="successId"></div>
           <div class="success-actions">
             <a href="index.html" class="btn btn-ghost">Back to overview</a>
@@ -140,7 +151,7 @@
 
 <footer class="foot">
   <div class="wrap">
-    <span>Mixer Cup · Community Volleyball</span>
+    <span>Sydney Volleyball League (SVL)</span>
     <a href="index.html">← Back to overview</a>
   </div>
 </footer>

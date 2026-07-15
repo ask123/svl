@@ -1,6 +1,6 @@
 /* ============================================
-   MIXER CUP — shared design system
-   ============================================ */
+  SVL — shared design system
+  ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -148,6 +148,18 @@ button{font-family:inherit;}
   background:transparent; color:var(--ink); border-color:var(--line-strong);
 }
 .btn-ghost:hover{border-color:var(--ink); transform:translateY(-2px);}
+.btn-whatsapp{
+  background:#25D366;
+  color:#fff;
+  border-color:#25D366;
+  box-shadow:0 8px 20px -6px rgba(37, 211, 102, 0.5);
+}
+.btn-whatsapp:hover{
+  background:#1fb85a;
+  border-color:#1fb85a;
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px -6px rgba(37, 211, 102, 0.55);
+}
 
 /* ---------- Scoreboard (signature element) ---------- */
 .scoreboard{
@@ -360,7 +372,7 @@ button{font-family:inherit;}
 }
 .rule-card .flag.warn{color:#B14200; background:var(--spike-soft);}
 
-/* ---------- Prizes ---------- */
+/* ---------- Registration options ---------- */
 .prize-grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
