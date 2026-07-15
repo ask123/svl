@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixer Cup — Community Volleyball Auction League</title>
+<meta name="description" content="One auction, five teams, twenty matches. A season-ending volleyball tournament for regular league players, decided by a player auction.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Mixer Cup</a>
+    <div class="nav-links">
+      <a href="#concept">Concept</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#rules">Match rules</a>
+      <a href="#prizes">Prizes</a>
+      <a href="#schedule">Schedule</a>
+    </div>
+    <a href="register.html" class="nav-cta">Register — $50</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Season Finale · Auction Format</span>
+      <h1>One auction.<br>Five teams.<br><em>Every regular, remixed.</em></h1>
+      <p class="lead">You already play every week — just not against most of the league. Mixer Cup pools every regular player into one draft, builds five brand-new teams from scratch, and settles it over a weekday round robin.</p>
+      <div class="hero-ctas">
+        <a href="register.html" class="btn btn-primary">Register to play — $50</a>
+        <a href="#how-it-works" class="btn btn-ghost">See how it works</a>
+      </div>
+    </div>
+
+    <div class="scoreboard">
+      <div class="sb-top">
+        <span>League match · Set 1</span>
+        <span class="sb-live"><span class="pulse"></span> Live rules demo</span>
+      </div>
+      <div class="sb-teams">
+        <div class="sb-team">
+          <div class="name" id="teamAName">Team A</div>
+          <div class="sb-score" id="scoreA">0</div>
+        </div>
+        <div class="sb-vs">SET TO 25</div>
+        <div class="sb-team">
+          <div class="name" id="teamBName">Team B</div>
+          <div class="sb-score" id="scoreB">0</div>
+        </div>
+      </div>
+      <div class="sb-status" id="sbStatus">Racing to 25 · win by 2</div>
+      <div class="sb-meter"><div class="sb-meter-fill" id="sbMeter"></div></div>
+      <div class="sb-caption">Demo only — shows how deuce &amp; the 30-point cap play out</div>
+    </div>
+  </div>
+</header>
+
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid reveal">
+      <div class="stat"><div class="num">5</div><div class="lbl">Teams</div></div>
+      <div class="stat"><div class="num">8</div><div class="lbl">Players / team</div></div>
+      <div class="stat"><div class="num">20</div><div class="lbl">League matches</div></div>
+      <div class="stat"><div class="num">$50</div><div class="lbl">Entry fee</div></div>
+      <div class="stat"><div class="num">$500</div><div class="lbl">Winner takes</div></div>
+      <div class="stat"><div class="num">7–10</div><div class="lbl">PM, weekdays</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="concept">
+  <div class="wrap">
+    <div class="concept-grid">
+      <div class="concept-visual reveal">
+        <div class="net-lines"></div>
+        <div class="cv-inner">
+          <div class="merge-row">
+            <span class="chip">Your regular team</span>
+            <span class="merge-arrow">＋</span>
+            <span class="chip">4 other regular teams</span>
+          </div>
+          <div class="merge-row">
+            <span class="merge-arrow">↓ auction ↓</span>
+          </div>
+          <div class="merge-row">
+            <span class="chip">5 new teams</span>
+          </div>
+          <h3>Same players. New rosters.</h3>
+          <p>Every registered player goes into one pool. Team captains build their squads through the auction — no one plays with their usual lineup.</p>
+        </div>
+      </div>
+      <div class="concept-copy reveal">
+        <span class="section-head tag">The idea</span>
+        <h2 style="font-family:var(--font-display); font-weight:800; font-size:28px; letter-spacing:-0.02em; margin-bottom:18px;">Why an auction, not a regular league</h2>
+        <p>Most weeks, you play with the same seven people. Mixer Cup exists to break that up — <strong>one competition where every regular player from every team gets shuffled into a fresh line-up</strong> and plays against people they usually only warm up next to.</p>
+        <p>The auction is what makes it fair and interesting: instead of friends picking friends, five teams are assembled competitively, so the talent — and the fun — is spread evenly across the season.</p>
+        <p>What comes out of draft night is five genuinely new teams, playing a proper double round robin to find out who's best when the usual lines are gone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag">Season path</span>
+      <h2>From sign-up to final whistle</h2>
+      <p>Five stages, in order. Nothing about the schedule is decided until the teams are.</p>
+    </div>
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <div class="tl-when">Step 1</div>
+        <div class="tl-body">
+          <h4>Registration</h4>
+          <p>Players register individually and pay the $50 entry fee. Everyone goes into the same pool — no pre-formed teams.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 2</div>
+        <div class="tl-body">
+          <h4>Auction night</h4>
+          <p>Five team captains draft their rosters from the full player pool. Each team ends up with 8 players.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 3</div>
+        <div class="tl-body">
+          <h4>Schedule released</h4>
+          <p>Once the five teams are finalized, the full weekday match schedule (7–9 PM slots) goes out to everyone.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 4</div>
+        <div class="tl-body">
+          <h4>Double round robin</h4>
+          <p>Each of the 5 teams plays every other team twice — 20 league matches in total, one set each.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 5</div>
+        <div class="tl-body">
+          <h4>Winner &amp; runner-up</h4>
+          <p>Top two teams from the round robin table take the season — $500 for first, $300 for second.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="rules">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag">On court</span>
+      <h2>How matches are actually played</h2>
+      <p>The format is built to guarantee everyone gets real game time — and to keep matches moving.</p>
+    </div>
+    <div class="rules-grid reveal">
+      <div class="rule-card">
+        <div class="ri">25</div>
+        <h4>Scoring format</h4>
+        <p>Every league match is a single set, played to 25 points.</p>
+        <p>If the set reaches 24–24 (deuce), play continues — but the deuce win-by-2 rule is capped: whichever team reaches <strong>30 points first wins outright</strong>, regardless of margin.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">8</div>
+        <h4>Squad size &amp; game time</h4>
+        <p>Each team has 8 registered players for the season.</p>
+        <p>Every player on the roster must play a <strong>minimum of 3 matches</strong> across the season — captains have to rotate the squad, not just run the same six.</p>
+        <span class="flag">Fair playing-time rule</span>
+      </div>
+      <div class="rule-card">
+        <div class="ri">6+2</div>
+        <h4>Match-day squad</h4>
+        <p>Before each match, the team captain names a starting six and two substitutes from the 8-player roster.</p>
+        <p>Only those 8 are eligible to play that match.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">!</div>
+        <h4>No early substitutions</h4>
+        <p>No substitution is permitted during the <strong>first 10 points</strong> of the set — including for injury.</p>
+        <p>If a player is unable to continue in that window, the match continues with the team playing short-handed. Substitutions are only allowed once the set has passed 10 combined points.</p>
+        <span class="flag warn">Applies even in case of injury</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="prizes">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag">What's on the line</span>
+      <h2>Prizes &amp; format at a glance</h2>
+    </div>
+    <div class="prize-grid reveal">
+      <div class="prize-card gold">
+        <div class="pk">Winner</div>
+        <div class="amt">$500</div>
+        <div class="sub">Top of the round robin table</div>
+      </div>
+      <div class="prize-card">
+        <div class="pk">Runner-up</div>
+        <div class="amt">$300</div>
+        <div class="sub">Second on the table</div>
+      </div>
+      <div class="prize-card">
+        <div class="pk">Format</div>
+        <div class="amt">20 matches</div>
+        <div class="sub">5 teams · double round robin · each team meets every other team twice</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="schedule">
+  <div class="wrap">
+    <div class="sched-band reveal">
+      <div>
+        <h3>Schedule drops once teams are set</h3>
+        <p>We're not fixing match dates until the auction is done — so no one's schedule assumption is a betrayal in advance. Once all five rosters are locked, the full fixture list goes out.</p>
+      </div>
+      <div class="sched-facts">
+        <div class="sched-fact"><span class="k">Match days</span><span class="v">Weekdays only</span></div>
+        <div class="sched-fact"><span class="k">Time window</span><span class="v">7:00 PM – 9:00 PM</span></div>
+        <div class="sched-fact"><span class="k">Fixtures</span><span class="v">Released post-auction</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>Ready to get drafted?</h2>
+      <p>Register once, pay the $50 entry, and let auction night decide who you're playing with this season.</p>
+      <a href="register.html" class="btn btn-primary">Register now</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Mixer Cup · Community Volleyball</span>
+    <a href="register.html">Register →</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

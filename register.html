@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Mixer Cup</title>
+<meta name="description" content="Register to play in Mixer Cup, the community volleyball auction league.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Mixer Cup</a>
+    <div class="nav-links">
+      <a href="index.html#concept">Concept</a>
+      <a href="index.html#how-it-works">How it works</a>
+      <a href="index.html#rules">Match rules</a>
+      <a href="index.html#prizes">Prizes</a>
+    </div>
+    <a href="index.html" class="nav-cta">Back to overview</a>
+  </div>
+</nav>
+
+<section class="section" style="padding-top:56px;">
+  <div class="wrap">
+    <div class="form-shell">
+
+      <!-- ============ FORM VIEW ============ -->
+      <div id="formView">
+        <div class="form-head">
+          <span class="tag">Player registration</span>
+          <h1>Get on the board</h1>
+          <p>Fill this in once. You'll go into the player pool for auction night — your final team is decided there, not by you.</p>
+        </div>
+
+        <form id="regForm" class="card" novalidate name="registration" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="registration">
+          <p style="position:absolute; left:-9999px;" aria-hidden="true">
+            <label>Leave this field blank: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+          </p>
+
+          <div class="field" id="field-name">
+            <label class="flabel" for="fullName">Full name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="e.g. Alex Chen" autocomplete="name">
+            <div class="field-error">Enter your full name.</div>
+          </div>
+
+          <div class="field" id="field-phone">
+            <label class="flabel" for="phone">Phone number</label>
+            <span class="fhint">So the auction captains and organizers can reach you about your team.</span>
+            <input type="tel" id="phone" name="phone" placeholder="e.g. 0400 000 000" autocomplete="tel">
+            <div class="field-error">Enter a valid contact number.</div>
+          </div>
+
+          <div class="field" id="field-email">
+            <label class="flabel" for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+            <div class="field-error">Enter a valid email address.</div>
+          </div>
+
+          <div class="field" id="field-age">
+            <label class="flabel">Age range</label>
+            <div class="pill-group" role="radiogroup" aria-label="Age range">
+              <label class="pill-option"><input type="radio" name="ageRange" value="10-20"><span class="pill">10–20</span></label>
+              <label class="pill-option"><input type="radio" name="ageRange" value="20-30"><span class="pill">20–30</span></label>
+              <label class="pill-option"><input type="radio" name="ageRange" value="30-40"><span class="pill">30–40</span></label>
+              <label class="pill-option"><input type="radio" name="ageRange" value="40+"><span class="pill">40+</span></label>
+            </div>
+            <div class="field-error">Select your age range.</div>
+          </div>
+
+          <div class="field" id="field-gender">
+            <label class="flabel">Gender</label>
+            <div class="pill-group" role="radiogroup" aria-label="Gender">
+              <label class="pill-option"><input type="radio" name="gender" value="Male"><span class="pill">Male</span></label>
+              <label class="pill-option"><input type="radio" name="gender" value="Female"><span class="pill">Female</span></label>
+              <label class="pill-option"><input type="radio" name="gender" value="Other"><span class="pill">Other</span></label>
+              <label class="pill-option"><input type="radio" name="gender" value="Prefer not to say"><span class="pill">Prefer not to say</span></label>
+            </div>
+            <div class="field-error">Select an option.</div>
+          </div>
+
+          <div class="field" id="field-position">
+            <label class="flabel">Playing position</label>
+            <span class="fhint">Select up to 3 — this helps captains draft balanced teams on auction night.</span>
+            <div class="pill-group" id="positionGroup">
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Setter"><span class="pill">Setter</span></label>
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Outside Hitter"><span class="pill">Outside Hitter</span></label>
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Opposite / Right Side"><span class="pill">Opposite / Right Side</span></label>
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Middle Blocker"><span class="pill">Middle Blocker</span></label>
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Libero"><span class="pill">Libero</span></label>
+              <label class="pill-option pos-option"><input type="checkbox" name="position" value="Defensive Specialist"><span class="pill">Defensive Specialist</span></label>
+            </div>
+            <div class="pos-limit-note" id="posNote">0 of 3 selected</div>
+            <div class="field-error">Select at least one position.</div>
+          </div>
+
+          <div class="field" id="field-consent">
+            <label class="flabel">Before you register</label>
+            <div class="consent-block">
+              <input type="checkbox" id="consent1" name="consent1">
+              <label for="consent1"><strong>Community event, no insurance:</strong> I understand Mixer Cup is a community-organized recreational event, that no insurance cover is provided by the organizers, and that I participate entirely at my own risk.</label>
+            </div>
+            <div class="consent-block">
+              <input type="checkbox" id="consent2" name="consent2">
+              <label for="consent2"><strong>Entry fee:</strong> I agree to pay the $50 registration fee to confirm my place in the player pool.</label>
+            </div>
+            <div class="consent-block">
+              <input type="checkbox" id="consent3" name="consent3">
+              <label for="consent3"><strong>Organizer decisions &amp; conduct:</strong> I agree to accept the organizers' decisions as final in any dispute, and understand that I — or my entire team — may be removed from the competition for disputes or misconduct.</label>
+            </div>
+            <div class="field-error">All three consent items must be checked to register.</div>
+          </div>
+
+          <div class="submit-row">
+            <button type="submit" class="btn-submit" id="submitBtn">Register — pay $50 to confirm</button>
+            <p class="form-note">This confirms your entry into the player pool. Payment instructions for the $50 fee will follow separately.</p>
+          </div>
+        </form>
+      </div>
+
+      <!-- ============ SUCCESS VIEW ============ -->
+      <div id="successView" style="display:none;">
+        <div class="success-shell">
+          <div class="success-badge">✓</div>
+          <h2>You're in the pool</h2>
+          <p id="successName">Thanks for registering. You're now in the Mixer Cup player pool — your team gets decided on auction night, and we'll be in touch about the $50 entry fee.</p>
+          <div class="success-id" id="successId"></div>
+          <div class="success-actions">
+            <a href="index.html" class="btn btn-ghost">Back to overview</a>
+            <button class="btn btn-primary" id="registerAnotherBtn" type="button">Register another player</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Mixer Cup · Community Volleyball</span>
+    <a href="index.html">← Back to overview</a>
+  </div>
+</footer>
+
+<script src="register.js"></script>
+</body>
+</html>
