@@ -125,7 +125,7 @@
       .then(() => {
         document.getElementById('successId').textContent = id;
         document.getElementById('successName').textContent =
-          `Thanks, ${data.fullName.split(' ')[0]} — you're in the friendly volley ball leage player pool. ` +
+          `Thanks, ${data.fullName.split(' ')[0]} — you're in the Friendly VolleyBall League player pool. ` +
           `Your selected option is ${data.feeOption}. Payment details will be informed later based on responses.`;
 
         document.getElementById('formView').style.display = 'none';
