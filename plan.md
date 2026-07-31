@@ -36,7 +36,7 @@ svl-main/                         ← repo root / Netlify publish dir
 ├── plan.md                       ← this file
 ├── netlify/functions/
 │   ├── auth.mjs                  POST { password } → { ok } vs env var `auction_unlock`
-│   └── player-photo.mjs          GET/POST/DELETE photo, stored in Netlify Blobs
+│   └── player-photo.mjs          GET/POST photo (open) + DELETE (token-gated), Netlify Blobs
 └── seasons/
     └── season-1-unity/           ← one folder per season (copy this pattern for S2)
         ├── index.html            Players & Teams page (public)
@@ -166,10 +166,12 @@ svl-main/                         ← repo root / Netlify publish dir
 
 - The auction/admin password is verified **server-side** against the Netlify env var
   `auction_unlock` (via `functions/auth.mjs`), so the password is never in the repo or client bundle.
-  Note the UI gating (hiding edit controls) is still client-side, so this protects the *secret*, not
-  every action — the photo `player-photo` POST/DELETE endpoints are not yet password-checked (uploads
-  are open by design; deletes are admin-only in the UI). Tighten later if needed by requiring the
-  password on those calls too.
+  On success `auth` returns a **derived HMAC token** (not the password); the client stores it and
+  sends it as the `x-vpl-token` header when **deleting** a photo, and `player-photo.mjs` verifies it
+  server-side (401 otherwise). So the real password never touches the browser storage.
+- **Photo uploads (POST) are intentionally open** so any player can add their own photo; **deletes are
+  authenticated** (organiser token only). Auction-console edit controls are still gated client-side
+  (they only mutate local state, nothing server-side).
 - **Never commit** the registration CSV / exports (they hold phones, emails, IPs). `.gitignore`
   blocks `*.csv` / `*.zip`. `players.js` intentionally holds only name/age/gender/positions.
 - If you push with a GitHub token, **rotate it afterward** — don't leave it in chats or configs.

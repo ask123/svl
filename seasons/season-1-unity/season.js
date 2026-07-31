@@ -261,9 +261,11 @@
   });
 
   /* ---------- admin mode (organiser) — enables photo delete ---------- */
+  let adminToken = sessionStorage.getItem('vpl-s1-token') || null;
   function isAdmin() { return sessionStorage.getItem('vpl-s1-admin') === '1'; }
   // Verify against the Netlify env var `auction_unlock` (server-side).
-  async function checkPassword(pw) {
+  // Returns a derived token on success (used to authorise photo deletes), else null.
+  async function authenticate(pw) {
     try {
       const res = await fetch('/.netlify/functions/auth', {
         method: 'POST',
@@ -271,30 +273,43 @@
         body: JSON.stringify({ password: pw }),
       });
       const d = await res.json().catch(() => ({}));
-      return res.ok && d.ok === true;
-    } catch (e) { return false; }
+      return (res.ok && d.ok === true) ? (d.token || '') : null;
+    } catch (e) { return null; }
   }
   function rerender() { renderPool(); if (anyAssigned) renderRosters(); }
   async function enterAdmin() {
     const pw = prompt('Organiser password to manage photos:');
     if (pw == null) return;
     toast('Checking…');
-    if (await checkPassword(pw)) {
+    const token = await authenticate(pw);
+    if (token !== null) {
+      adminToken = token;
       sessionStorage.setItem('vpl-s1-admin', '1');
+      sessionStorage.setItem('vpl-s1-token', token);
       toast('Admin mode on — 🗑 delete buttons enabled');
       rerender();
     } else {
       toast('Incorrect password (or run it on the deployed Netlify site)');
     }
   }
-  function exitAdmin() { sessionStorage.removeItem('vpl-s1-admin'); toast('Admin mode off'); rerender(); }
+  function exitAdmin() {
+    adminToken = null;
+    sessionStorage.removeItem('vpl-s1-admin');
+    sessionStorage.removeItem('vpl-s1-token');
+    toast('Admin mode off');
+    rerender();
+  }
 
   async function deletePhoto(id) {
     const name = (PLAYERS.find(p => p.id === id) || {}).name || 'player';
-    if (!isAdmin()) { toast('Enable admin mode first'); return; }
+    if (!isAdmin() || !adminToken) { toast('Enable admin mode first'); return; }
     if (!confirm('Remove ' + name + "'s photo?")) return;
     try {
-      const res = await fetch(PHOTO_ENDPOINT + '?id=' + id, { method: 'DELETE' });
+      const res = await fetch(PHOTO_ENDPOINT + '?id=' + id, {
+        method: 'DELETE',
+        headers: { 'x-vpl-token': adminToken },
+      });
+      if (res.status === 401) { toast('Session expired — unlock admin again'); exitAdmin(); return; }
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || ('HTTP ' + res.status)); }
       document.querySelectorAll('.player-card[data-id="' + id + '"] .player-avatar img').forEach(img => img.remove());
       toast('Photo removed for ' + name);

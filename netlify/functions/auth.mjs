@@ -9,6 +9,16 @@
    client bundle. Set it in the Netlify dashboard for the site.
    ============================================================ */
 
+import { createHmac } from 'node:crypto';
+
+/* Shared with player-photo.mjs — a token derived from the secret, so the client
+   can prove it authenticated (for privileged calls like photo delete) without
+   ever storing the real password. */
+export const DELETE_MESSAGE = 'vpl-photo-delete';
+export function deleteToken(secret) {
+  return createHmac('sha256', secret).update(DELETE_MESSAGE).digest('hex');
+}
+
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -27,5 +37,6 @@ export default async (req) => {
 
   const supplied = body && typeof body.password === 'string' ? body.password : '';
   const ok = supplied.length > 0 && supplied === expected;
-  return json({ ok });
+  // On success, return a derived token the client can present for privileged calls.
+  return json(ok ? { ok: true, token: deleteToken(expected) } : { ok: false });
 };

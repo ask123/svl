@@ -8,6 +8,7 @@
    so blobs stay tiny. Store name: "player-photos", key: the player id.
    ============================================================ */
 import { getStore } from '@netlify/blobs';
+import { deleteToken } from './auth.mjs';
 
 const MAX_BYTES = 3 * 1024 * 1024;          // 3 MB safety cap
 const ID_RE = /^p\d{2,3}$/;                 // player ids look like p01 … p138
@@ -56,8 +57,13 @@ export default async (req) => {
     return json({ ok: true, id, bytes: bytes.length });
   }
 
-  // ---------- delete a photo ----------
+  // ---------- delete a photo (organiser only) ----------
   if (req.method === 'DELETE') {
+    const secret = process.env.auction_unlock;
+    if (!secret) return json({ error: 'auth not configured' }, 500);
+    const supplied = req.headers.get('x-vpl-token') || '';
+    if (supplied !== deleteToken(secret)) return json({ error: 'unauthorized' }, 401);
+
     const id = url.searchParams.get('id');
     if (!id || !ID_RE.test(id)) return json({ error: 'bad id' }, 400);
     await store.delete(id);
