@@ -1,0 +1,178 @@
+# Volleyball Premier League (VPL) — project plan & handoff
+
+A handoff doc so anyone (you, a future Claude session, or GitHub Copilot) can continue this
+project with full context. Read this first.
+
+---
+
+## 1. What this is
+
+**Volleyball Premier League (VPL)** — a friendly, auction-format volleyball tournament site
+(rebranded from the old "Friendly VolleyBall League" / FVL).
+
+- Players register on the site.
+- Five team **owners** are drawn on auction night and build squads through a **live auction**.
+- Each season has its own **theme**. **Season 1 = UNITY** (teams spell U-N-I-T-Y).
+
+**Live site:** https://sydneyvbleague.netlify.app (Netlify project `sydneyvbleague`)
+**Repo:** https://github.com/ask123/svl  (default branch `main`)
+**Active work branch:** `season-1-unity` (open a PR → merge to `main` to deploy)
+
+> The repo root **is** this `svl-main` folder (index.html sits at the site root).
+
+---
+
+## 2. Directory map
+
+```
+svl-main/                         ← repo root / Netlify publish dir
+├── index.html                    Home (hero has a clickable Season 1 UNITY spotlight card)
+├── register.html / register.js   Registration form → Netlify Forms
+├── script.js                     Home: scroll-reveal + live player count on the S1 card
+├── styles.css                    Base design system (shared)
+├── netlify.toml                  publish=".", functions="netlify/functions"
+├── package.json                  dep: @netlify/blobs (for photo storage)
+├── .gitignore                    blocks *.csv, *.zip, .DS_Store, node_modules
+├── plan.md                       ← this file
+├── netlify/functions/
+│   └── player-photo.mjs          GET/POST/DELETE photo, stored in Netlify Blobs
+└── seasons/
+    └── season-1-unity/           ← one folder per season (copy this pattern for S2)
+        ├── index.html            Players & Teams page (public)
+        ├── auction.html          Auction console (view-only; password unlocks editing)
+        ├── rules.html            Rules & how-to-run-the-auction
+        ├── players.js            DATA: SEASON config, TEAMS, PLAYERS[], helpers
+        ├── season.js             Renders the public players/teams page + photo upload UI
+        ├── auction.js            Auction console logic (view/edit, budget, export)
+        ├── season.css            UNITY theme (extends ../../styles.css)
+        ├── results.js            (created AFTER the auction — see §6) not committed yet
+        └── assets/
+            ├── *.jpeg            5 team logos + unity-all-teams.jpeg (combined)
+            └── players/          uploaded photos live in Netlify Blobs, not here;
+                                   README.md maps player id → name
+```
+
+---
+
+## 3. Data model (`seasons/season-1-unity/players.js`)
+
+- `SEASON` — id, name, theme, and **auction economics** (edit here to change rules everywhere):
+  - `budget: 100000` per team
+  - `baseSpiker: 15000`, `baseOther: 5000` (spiker = Outside Hitter OR Opposite/Right Side)
+  - `minIncrement: 1000`, `squadTarget: 8`
+- `TEAMS[]` — 5 teams (id, letter, name, animal, logo path, primary/accent colors).
+- `PLAYERS[]` — the pool. Each: `{ id:'pNN', name, age, gender, positions:[...], fee, team:null }`.
+  - Currently **40** entries: 38 real registrations + `p39`/`p40` placeholders for 2 expected sign-ups.
+  - `positions` must use exact strings: `Setter`, `Outside Hitter`, `Opposite / Right Side`,
+    `Middle Blocker`, `Libero`, `Defensive Specialist`.
+- Helpers exposed on `window`: `getPlayers()`, `teamById()`, `basePrice()`, `isSpiker()`,
+  `avatarHTML()`, `initials()`, `photoSrc()`, `loadAssignments()`, `saveAssignments()`.
+- **Team assignments** are stored in `localStorage` under `vpl-season-1-unity-assignments`
+  during the auction, and published to `results.js` afterward (see §6).
+
+---
+
+## 4. Auction rules (also on `rules.html`)
+
+- 5 owners drawn by chit on the day; **owner is part of their team** (owner + 6–7 bought).
+- Budget **$100k** per team. Base price **$15k spiker / $5k others**. Min raise **$1k**.
+- **Max-bid cap:** max bid = remaining budget − ($5k × slots still to fill) — guarantees a team
+  can always complete a legal squad. Shown live per team in the console.
+- Target even squads (with 38–40 players → 8/8/8/7/7). Surplus player → team with most budget left.
+- **Junior players** may be placed directly with a team (e.g. a family member) instead of auctioned.
+- **Unsold ladder:** pass → $5k flat re-auction round → chit draw among teams with space + budget.
+
+---
+
+## 5. Auction console (`auction.html` + `auction.js`)
+
+- **View-only by default** — anyone (players) can see teams, base prices, budgets, max-bid and a
+  "how it works" explainer. No controls; mutators no-op.
+- **Organiser unlocks editing** via "🔓 Unlock to run auction" → enters the password. Only a
+  **SHA-256 hash** of the password is in the code (`PASS_HASH`), never the plaintext. Session flag:
+  `sessionStorage['vpl-s1-auction-auth']`.
+- In edit mode: put a player "on the block", click the winning team + type the price (auto-advances),
+  drop players back, adjust squad target, **Export results / Copy JSON / Import / Reset**.
+- **Import** = restore/move auction state (a previously exported file); it does NOT add players.
+- The same password also unlocks **photo delete** on the players page ("Admin" link in footer).
+
+---
+
+## 6. AFTER the auction — publish rosters (quick)
+
+1. In the console (edit mode) click **Export results** → downloads `results.js`.
+2. Put that file at `seasons/season-1-unity/results.js`.
+3. Uncomment the `results.js` `<script>` line in **`index.html`** and **`auction.html`**
+   (it's already there, commented, right after `players.js`).
+4. Commit + push + merge. The players page auto-switches to **roster view** (teams + drafted
+   players + prices) and the console shows final teams read-only.
+5. **TODO (planned):** design a nicer post-auction reveal — team roster cards, sold prices,
+   "most expensive pick", etc. (Not built yet.)
+
+---
+
+## 7. Player photos (Netlify Blobs)
+
+- Players upload from the Season 1 page (📷 badge on each avatar). Image is centre-cropped +
+  compressed to a ~400px JPEG in the browser, then POSTed to `/.netlify/functions/player-photo`
+  and stored in a Netlify **Blobs** store keyed by player id.
+- No photo → the avatar shows the player's **first+last initial**.
+- Organiser can **delete** a photo: Season 1 page footer → "Admin" → password → 🗑 on a card.
+- ⚠️ Only works on a deployed Netlify site (or `netlify dev`), not a plain local file server.
+
+---
+
+## 8. Local dev & deploy
+
+- **Static preview:** `cd svl-main && python3 -m http.server` → open
+  `http://localhost:8000/seasons/season-1-unity/index.html`. (Photos/functions won't work here.)
+- **With functions/Blobs:** install Netlify CLI, then `netlify dev` from `svl-main`.
+- **Deploy:** push to GitHub; Netlify builds from `netlify.toml` and auto-installs `@netlify/blobs`.
+  Merge `season-1-unity` → `main` to publish to production.
+
+---
+
+## 9. How to do common tasks
+
+- **Add / edit a player:** edit `PLAYERS[]` in `players.js`. New id = next free `pNN`
+  (format `p` + 2–3 digits). `team:null`. Rebuild not needed — it's static JS.
+- **Rename the 2 placeholders (p39/p40):** update their `name/age/gender/positions` when the
+  real players register.
+- **Change budget / base prices / squad size:** edit the `SEASON` object in `players.js`.
+- **Change a team name / color / logo:** edit `TEAMS[]` and drop a new logo in `assets/`.
+- **Change the org password:** compute `printf '%s' 'NEWPASS' | shasum -a 256`, then replace
+  `PASS_HASH` in `auction.js` (and the copy in `season.js` used for the Admin/delete gate).
+- **Start Season 2:** copy `seasons/season-1-unity/` → `seasons/season-2-<theme>/`, swap logos,
+  team names/colors, theme CSS, and reset `PLAYERS[]`. Link it from the home nav.
+
+---
+
+## 10. Backlog / next steps
+
+- [ ] **Post-auction:** receive `results.js`, publish rosters (§6), design the reveal.
+- [ ] **Season 2:** wire the **registration form → season player list automatically** (Netlify
+      Function or build step reading Netlify Forms submissions) instead of hand-editing `PLAYERS[]`.
+      Then repeat the per-season folder pattern once the S2 theme/teams are decided.
+- [ ] **Optional live-sync:** so players watch picks fill in **real time** on their phones —
+      sync auction state to a Netlify Blobs store; the view-only page polls it. Writes must be
+      password-checked (ideally server-side via an env var, not just the client hash).
+- [ ] Optional: "photos uploaded: X of N" counter for the organiser.
+
+---
+
+## 11. Security notes
+
+- The auction/admin password is protected only by a **client-side SHA-256 hash** — good enough to
+  deter casual editing, NOT strong security (a determined viewer could brute-force the hash). Do not
+  reuse a sensitive password. For real protection use a Netlify Function that checks an env-var secret.
+- **Never commit** the registration CSV / exports (they hold phones, emails, IPs). `.gitignore`
+  blocks `*.csv` / `*.zip`. `players.js` intentionally holds only name/age/gender/positions.
+- If you push with a GitHub token, **rotate it afterward** — don't leave it in chats or configs.
+
+---
+
+## 12. Hosting / cost
+
+Netlify **Free** plan covers this use case (Forms are free & unlimited on credit plans; Functions +
+Blobs usage for ~40 players is negligible; ~15 GB bandwidth is plenty). The **$9 Personal** plan is
+optional headroom, not required.
