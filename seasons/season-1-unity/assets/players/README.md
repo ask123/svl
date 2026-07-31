@@ -43,13 +43,13 @@ The id map below is handy for matching a person to their `pXX` id.
 | p26.jpg  | Ravi Ankam                           | 40+    | DS |
 | p27.jpg  | Sohini Gady                          | 20-30  | MB / DS |
 | p28.jpg  | Venkat Adusumalli                    | 30-40  | DS |
-| p29.jpg  | Virat Dadi  (junior)                 | 10-20  | L |
+| p29.jpg  | Virat Dadi                           | 10-20  | L |
 | p30.jpg  | Kiran Dadi                           | 40+    | L / DS |
 | p31.jpg  | Hrishikesh Enakolu                   | 20-30  | OH |
 | p32.jpg  | Kasi                                 | 30-40  | OPP |
 | p33.jpg  | Kasi (Son)                           | 30-40  | S |
 | p34.jpg  | Swamy Thota                          | 30-40  | OH / OPP / DS |
 | p35.jpg  | Avinash Vajji                        | 30-40  | S / L / DS |
-| p36.jpg  | Dhruvan Obineedi  (junior)           | 10-20  | OH |
+| p36.jpg  | Dhruvan Obineedi                     | 10-20  | OH |
 | p37.jpg  | Raghu Obineedi                       | 40+    | S |
 | p38.jpg  | Sravan Alluri                        | 30-40  | DS |
