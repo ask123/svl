@@ -15,5 +15,9 @@ registration*.csv
 # Netlify local dev
 .netlify/
 
+# Local env (never commit the password)
+.env
+.env.*
+
 # Editor
 .vscode/
