@@ -102,7 +102,7 @@ const POSITIONS = {
   'Defensive Specialist': 'DS',
 };
 
-/* 38 registered players (Season 1 pool). team:null until assigned in the auction. */
+/* Season 1 pool (38 registered + 2 placeholders). team:null until assigned in the auction. */
 const PLAYERS = [
   { id: 'p01', name: 'Gopikrishna Mallampati', age: '30-40', gender: 'Male', positions: ['Outside Hitter', 'Opposite / Right Side', 'Middle Blocker'], fee: 30, team: null },
   { id: 'p02', name: 'Vamsi Krishna Madasu', age: '20-30', gender: 'Male', positions: ['Setter', 'Outside Hitter', 'Opposite / Right Side'], fee: 30, team: null },
@@ -142,6 +142,9 @@ const PLAYERS = [
   { id: 'p36', name: 'Dhruvan Obineedi', age: '10-20', gender: 'Male', positions: ['Outside Hitter'], fee: 30, team: null },
   { id: 'p37', name: 'Raghu Obineedi', age: '40+', gender: 'Male', positions: ['Setter'], fee: 30, team: null },
   { id: 'p38', name: 'Sravan Alluri', age: '30-40', gender: 'Male', positions: ['Defensive Specialist'], fee: null, team: null },
+  // Placeholders for the 2 expected registrations — rename/adjust once they sign up.
+  { id: 'p39', name: 'Player 39', age: '30-40', gender: 'TBC', positions: ['Setter'], fee: null, team: null },
+  { id: 'p40', name: 'Player 40', age: '30-40', gender: 'TBC', positions: ['Setter'], fee: null, team: null },
 ];
 
 /* ------------------------------------------------------------
