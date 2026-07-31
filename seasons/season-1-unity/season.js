@@ -15,6 +15,10 @@
     `<span class="unity-letter"><b style="color:${t.accent}">${t.letter}</b> ${t.animal} ${t.name}</span>`
   ).join('');
 
+  // live player count in the "how it works" flow strip
+  const flowCount = document.getElementById('flowPlayerCount');
+  if (flowCount) flowCount.textContent = players.length;
+
   /* ---------- Teams grid ---------- */
   function renderTeams() {
     const grid = document.getElementById('teamsGrid');
