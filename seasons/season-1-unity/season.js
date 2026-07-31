@@ -219,9 +219,20 @@
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
-  fileInput.style.display = 'none';
+  // NOT display:none — iOS Safari won't open a display:none file input. Keep it
+  // in the layout but off-screen/invisible so the picker opens everywhere.
+  fileInput.setAttribute('style', 'position:fixed; left:-9999px; top:0; width:1px; height:1px; opacity:0;');
   document.body.appendChild(fileInput);
   let uploadTargetId = null;
+
+  function fileToDataURL(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error('could not read file'));
+      r.readAsDataURL(file);
+    });
+  }
 
   // centre-crop to a square JPEG in the browser so uploads stay tiny
   function compressToSquareJpeg(file, size, quality) {
@@ -256,10 +267,18 @@
 
   async function uploadPhoto(id, file) {
     const name = (PLAYERS.find(p => p.id === id) || {}).name || 'player';
-    if (!/^image\//.test(file.type)) { toast('Please choose an image file'); return; }
+    const looksImage = /^image\//.test(file.type) || /\.(jpe?g|png|webp|heic|heif|gif)$/i.test(file.name || '');
+    if (!looksImage) { toast('Please choose a photo (JPEG or PNG)'); return; }
     toast('Uploading ' + name + "'s photo…");
     try {
-      const dataUrl = await compressToSquareJpeg(file, 400, 0.85);
+      // Try to shrink to a square JPEG in the browser; if that fails (e.g. a
+      // format the canvas can't decode), fall back to sending the original file.
+      let dataUrl;
+      try { dataUrl = await compressToSquareJpeg(file, 400, 0.85); }
+      catch (e) { dataUrl = await fileToDataURL(file); }
+      if (!dataUrl || dataUrl.length < 40) throw new Error('could not read the image');
+      if (dataUrl.length > 4 * 1024 * 1024) { toast('That image is too large — please pick a smaller one'); return; }
+
       const res = await fetch(PHOTO_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -272,7 +291,10 @@
       setCardPhoto(id, PHOTO_ENDPOINT + '?id=' + id + '&t=' + Date.now());
       toast('Photo updated for ' + name + ' ✓');
     } catch (err) {
-      toast('Upload failed: ' + err.message + (location.hostname === 'localhost' ? ' (needs Netlify)' : ''));
+      console.error('[photo upload]', err);
+      const hint = location.hostname === 'localhost' ? ' — photos need the deployed Netlify site' : '';
+      toast('Upload failed: ' + err.message + hint);
+      alert('Photo upload failed for ' + name + ':\n' + err.message + hint);
     }
   }
 

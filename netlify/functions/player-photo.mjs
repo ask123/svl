@@ -21,7 +21,8 @@ function json(body, status = 200) {
 }
 
 export default async (req) => {
-  const store = getStore('player-photos');
+  // strong consistency → an uploaded photo reads back immediately (no ~60s lag)
+  const store = getStore({ name: 'player-photos', consistency: 'strong' });
   const url = new URL(req.url);
 
   // ---------- serve a photo ----------

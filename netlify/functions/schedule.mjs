@@ -23,7 +23,8 @@ function json(body, status = 200) {
 }
 
 export default async (req) => {
-  const store = getStore(STORE);
+  // strong consistency → saved scores/times show to everyone immediately
+  const store = getStore({ name: STORE, consistency: 'strong' });
 
   if (req.method === 'GET') {
     const data = await store.get(KEY, { type: 'json' });
