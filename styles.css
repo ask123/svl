@@ -223,6 +223,71 @@ button{font-family:inherit;}
 }
 .sb-caption{font-size:11.5px; color:rgba(255,255,255,0.4); text-align:center;}
 
+/* ---------- Season 1 spotlight card (hero) ---------- */
+.s1-card{
+  display:block;
+  background:linear-gradient(165deg, var(--court), #0B1B3F);
+  border-radius:28px;
+  padding:24px 26px 20px;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 30px 60px -20px rgba(21,43,92,0.55);
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.s1-card::before{
+  content:"";
+  position:absolute; inset:0;
+  background:radial-gradient(120% 100% at 15% 0%, rgba(255,255,255,0.10), transparent 55%);
+  pointer-events:none;
+}
+.s1-card:hover{ transform:translateY(-4px); box-shadow:0 42px 72px -20px rgba(21,43,92,0.65); }
+.s1-top{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  position:relative; z-index:1;
+}
+.s1-badge{ display:flex; align-items:center; gap:7px; color:#FF8A50; }
+.s1-badge .pulse{ width:6px; height:6px; border-radius:50%; background:#FF5A1F; animation:pulse 1.4s infinite; }
+.s1-theme{ color:rgba(255,255,255,0.55); }
+.s1-crests{
+  display:flex; justify-content:center; gap:12px; margin:22px 0 4px;
+  position:relative; z-index:1;
+}
+.s1-crests img{
+  width:62px; height:62px; border-radius:50%; object-fit:cover;
+  background:#fff; padding:3px;
+  box-shadow:0 8px 16px rgba(0,0,0,0.35);
+  transition:transform .3s var(--ease);
+}
+.s1-card:hover .s1-crests img{ transform:translateY(-3px); }
+.s1-card:hover .s1-crests img:nth-child(2){ transform:translateY(-7px); }
+.s1-card:hover .s1-crests img:nth-child(3){ transform:translateY(-9px); }
+.s1-card:hover .s1-crests img:nth-child(4){ transform:translateY(-7px); }
+.s1-unity{
+  display:flex; justify-content:center; gap:10px; margin-top:16px;
+  font-family:var(--font-display); font-weight:900; font-size:40px; line-height:1;
+  letter-spacing:0.02em; position:relative; z-index:1;
+}
+.s1-sub{
+  text-align:center; font-size:11.5px; color:rgba(255,255,255,0.6);
+  margin-top:8px; position:relative; z-index:1;
+}
+.s1-title{
+  text-align:center; font-size:14.5px; color:rgba(255,255,255,0.82);
+  margin:14px auto 0; max-width:34ch; line-height:1.5; position:relative; z-index:1;
+}
+.s1-foot{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:18px; padding-top:15px;
+  border-top:1px solid rgba(255,255,255,0.13);
+  font-size:13px; position:relative; z-index:1;
+}
+.s1-stat{ color:rgba(255,255,255,0.7); }
+.s1-stat b{ font-family:var(--font-display); font-size:18px; font-weight:800; color:#fff; margin-right:2px; }
+.s1-cta{ color:#FFB088; font-weight:700; transition:transform .2s var(--ease); }
+.s1-card:hover .s1-cta{ color:#FF8A50; }
+
 /* ---------- Stats strip ---------- */
 .stats{
   padding:12px 0 72px;
