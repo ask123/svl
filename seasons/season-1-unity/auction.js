@@ -3,13 +3,26 @@
    Assign players to teams live; state persists to localStorage.
    ============================================================ */
 (function () {
+  const PASS_HASH = '33ebdbc951c231a047a2b913f4fbf2dc7d11bedea0481eb624fbb27ee195bd92';
+  const AUTH_KEY = 'vpl-s1-auction-auth';
+  let editing = sessionStorage.getItem(AUTH_KEY) === '1';   // view-only until unlocked
+
   let assignments = loadAssignments();   // { p01: { team:'ultra-eagles', price:120 }, ... }
+  // If nothing is saved locally but results have been published, seed a display copy
+  // so view-only visitors (and other devices) still see the final rosters.
+  if (Object.keys(assignments).length === 0 && typeof RESULTS !== 'undefined' && RESULTS) {
+    assignments = JSON.parse(JSON.stringify(RESULTS));
+  }
   let spotlightId = null;
   let query = '';
   let squadTarget = SEASON.squadTarget;
 
   const $ = (id) => document.getElementById(id);
   const money = (n) => '$' + Number(n).toLocaleString();
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
   /* ---------- budget maths ---------- */
   function teamRoster(id) { return PLAYERS.filter(p => teamOf(p.id) === id); }
@@ -44,8 +57,9 @@
     toast._t = setTimeout(() => t.classList.remove('show'), 1800);
   }
 
-  /* ---------- assignment mutators ---------- */
+  /* ---------- assignment mutators (no-op unless editing) ---------- */
   function assign(playerId, teamId) {
+    if (!editing) return;
     if (!teamId) { delete assignments[playerId]; }
     else {
       assignments[playerId] = Object.assign({}, assignments[playerId], { team: teamId });
@@ -57,6 +71,7 @@
     else toast(`${p.name} returned to the pool`);
   }
   function setPrice(playerId, price) {
+    if (!editing) return;
     if (!assignments[playerId]) return;
     const n = parseInt(price, 10);
     assignments[playerId].price = isNaN(n) ? undefined : n;
@@ -80,6 +95,11 @@
   /* ---------- on the block ---------- */
   function renderBlock() {
     const box = $('onBlock');
+    if (!editing) {
+      box.className = 'on-block empty';
+      box.innerHTML = `<div><strong>How the auction works:</strong> the organiser puts a player “on the block”, the five team owners bid from their $100k purse, and the winning team &amp; price are recorded — the player then appears on that team's board on the right. Spikers start at $15k, everyone else at $5k.</div>`;
+      return;
+    }
     if (!spotlightId) {
       box.className = 'on-block empty';
       box.innerHTML = `<div>Pick a player below (or “Next unsold”) to put them on the block.</div>`;
@@ -140,11 +160,13 @@
               <div class="ar-meta">${p.age} · ${p.positions.map(x => POSITIONS[x] || x).join(' / ')} · base ${money(basePrice(p))}</div>
             </div>
           </div>
+          ${editing ? `
           <button class="pick-btn" data-pick="${p.id}">Block</button>
           <select data-assign="${p.id}">
             <option value="">— Pool —</option>
             ${teamOptions(tId)}
-          </select>
+          </select>` : `
+          <span class="ar-status">${t ? t.name + (priceOf(p.id) != null ? ' · ' + money(priceOf(p.id)) : '') : 'In pool'}</span>`}
         </div>`;
     }).join('') || `<div style="padding:20px; color:var(--ink-faint);">No players match.</div>`;
 
@@ -172,7 +194,7 @@
             return `<div class="tb-player">
                 <span>${p.name}</span>
                 ${pr != null ? `<span class="pr">${money(pr)}</span>` : `<span class="pr">—</span>`}
-                <button class="x" data-drop="${p.id}" title="Return to pool">×</button>
+                ${editing ? `<button class="x" data-drop="${p.id}" title="Return to pool">×</button>` : ''}
               </div>`;
           }).join('')
         : `<div class="tb-empty">No players yet.</div>`;
@@ -249,6 +271,45 @@ window.RESULTS = RESULTS;
     }
   }
 
+  /* ---------- view / edit mode ---------- */
+  async function unlockEditing() {
+    const pw = prompt('Enter the organiser password to run the auction:');
+    if (pw == null) return;
+    try {
+      if ((await sha256(pw)) === PASS_HASH) {
+        editing = true;
+        sessionStorage.setItem(AUTH_KEY, '1');
+        applyMode(); renderAll();
+        toast('Edit mode on — you can run the auction');
+      } else { toast('Incorrect password'); }
+    } catch (e) { toast('Password check needs https:// or localhost'); }
+  }
+  function lockEditing() {
+    editing = false;
+    sessionStorage.removeItem(AUTH_KEY);
+    spotlightId = null;
+    applyMode(); renderAll();
+    toast('Locked — view only');
+  }
+  function renderModeBar() {
+    const bar = $('modeBar');
+    bar.className = 'mode-bar ' + (editing ? 'editing' : 'viewing');
+    bar.innerHTML = editing
+      ? `<span class="mode-tag">✏️ Edit mode — you're running the auction</span>
+         <button class="auc-btn" id="lockBtn">🔒 Lock (view only)</button>`
+      : `<span class="mode-tag">👀 View only — this is how the auction works</span>
+         <button class="auc-btn primary" id="unlockBtn">🔓 Unlock to run auction</button>`;
+    const u = $('unlockBtn'); if (u) u.addEventListener('click', unlockEditing);
+    const l = $('lockBtn'); if (l) l.addEventListener('click', lockEditing);
+  }
+  function applyMode() {
+    document.body.classList.toggle('editing', editing);
+    $('editActions').style.display = editing ? 'contents' : 'none';
+    $('nextBtn').style.display = editing ? '' : 'none';
+    $('setSquad').disabled = !editing;
+    renderModeBar();
+  }
+
   /* ---------- settings bar ---------- */
   function initSettings() {
     $('setBudget').textContent = money(SEASON.budget);
@@ -272,6 +333,7 @@ window.RESULTS = RESULTS;
     e.target.value = '';
   });
   $('resetBtn').addEventListener('click', () => {
+    if (!editing) return;
     if (confirm('Clear ALL team assignments for Season 1? This cannot be undone.')) {
       assignments = {}; spotlightId = null; persist(); renderAll();
       toast('All assignments cleared');
@@ -279,5 +341,6 @@ window.RESULTS = RESULTS;
   });
 
   initSettings();
+  applyMode();
   renderAll();
 })();

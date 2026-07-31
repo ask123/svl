@@ -280,6 +280,17 @@ body.locked .auc-wrap{ display:none; }
 .auth-err{ display:none; color:#C22; font-size:13px; font-weight:600; margin-top:12px; }
 
 .auc-wrap{ max-width:1280px; margin:0 auto; padding:0 24px; }
+
+/* view / edit mode bar */
+.mode-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  padding:11px 16px; border-radius:12px; margin:16px 0 8px;
+  font-size:13.5px; font-weight:600;
+}
+.mode-bar.viewing{ background:#EAF0FF; color:#1E3A8A; border:1px solid #cfe0ff; }
+.mode-bar.editing{ background:var(--spike-soft); color:#B14200; border:1px solid #ffd3c0; }
+.mode-bar .mode-tag{ display:flex; align-items:center; gap:8px; }
+.ar-status{ font-size:12px; font-weight:700; color:var(--ink-soft); white-space:nowrap; padding-right:4px; }
 .auc-top{
   display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
   padding:20px 0;
