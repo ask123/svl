@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Fixtures &amp; Schedule</title>
+<meta name="description" content="Volleyball Premier League Season 1 (UNITY) fixtures — double round robin, 20 league matches, plus semifinals and grand final.">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
+    <div class="nav-links">
+      <a href="index.html">Players &amp; Teams</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="results.html">Results</a>
+      <a href="rules.html">Rules</a>
+    </div>
+    <a href="results.html" class="nav-cta">Standings</a>
+  </div>
+</nav>
+
+<header class="vpl-hero" style="padding:52px 0 36px;">
+  <div class="wrap" style="grid-template-columns:1fr;">
+    <div>
+      <span class="eyebrow">Season 1 · UNITY · Fixtures</span>
+      <h1 style="font-size:clamp(32px,5vw,52px);">Schedule</h1>
+      <p class="lead" id="fmtNote">Double round robin — every team plays each other twice (8 matches each). Dates, times and venues are announced below.</p>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap">
+    <div class="sched-note" id="schedNote">📅 Times &amp; venues will be confirmed once finalised — check back here, and see live results on the <a href="results.html">Results page</a>.</div>
+    <div id="leagueRounds"></div>
+
+    <div class="section-head" style="margin:44px 0 20px;">
+      <span class="tag">Knockouts</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);">Semifinals &amp; Grand Final</h2>
+      <p>Top 4 teams advance; 5th place is eliminated. Knockouts are best of 3 sets.</p>
+    </div>
+    <div id="koFixtures"></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <span style="display:flex; gap:18px;">
+      <a href="schedule-admin.html">Admin</a>
+      <a href="results.html">Results &amp; standings →</a>
+    </span>
+  </div>
+</footer>
+
+<script src="players.js"></script>
+<script src="schedule.js"></script>
+<script>
+(function () {
+  function team(id) { return teamById(id); }
+  function side(id, fallback) {
+    const t = id ? team(id) : null;
+    if (t) return `<span class="fx-team"><img src="${t.logo}" alt=""><span>${t.name}</span></span>`;
+    return `<span class="fx-team tbd"><span class="fx-dot"></span><span>${fallback || 'TBD'}</span></span>`;
+  }
+  function metaLine(m) {
+    const bit = (v, tbd) => `<span>${v ? v : '<em>' + tbd + '</em>'}</span>`;
+    return `<div class="fx-meta">
+      ${bit(m.day, 'Day TBD')} ${bit(m.date, 'Date TBD')} ${bit(m.time, 'Time TBD')}
+      <span>📍 ${m.venue ? m.venue : '<em>Venue TBD</em>'}</span>
+    </div>`;
+  }
+  function fixtureCard(m, homeLabel, awayLabel) {
+    return `<div class="fx-card">
+      <div class="fx-id">${m.id}</div>
+      <div class="fx-teams">
+        ${side(m.home ?? null, homeLabel)}
+        <span class="fx-vs">vs</span>
+        ${side(m.away ?? null, awayLabel)}
+      </div>
+      ${metaLine(m)}
+    </div>`;
+  }
+
+  function render() {
+    const rounds = [...new Set(leagueMatches().map(m => m.round))].sort((a, b) => a - b);
+    document.getElementById('leagueRounds').innerHTML = rounds.map(r => {
+      const ms = leagueMatches().filter(m => m.round === r);
+      const bye = byeTeam(r);
+      const byeT = bye ? team(bye) : null;
+      return `<div class="round-block">
+        <div class="round-head">
+          <span class="round-name">Round ${r}</span>
+          ${byeT ? `<span class="round-bye">Bye · ${byeT.name}</span>` : ''}
+        </div>
+        <div class="fx-grid">${ms.map(m => fixtureCard(m)).join('')}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('koFixtures').innerHTML = `<div class="fx-grid">` + knockoutMatches().map(m => {
+      const rt = resolveTeams(m);
+      const card = fixtureCard(
+        { ...m, home: rt.home, away: rt.away },
+        slotLabel(m.src.home), slotLabel(m.src.away)
+      );
+      return card.replace('<div class="fx-id">' + m.id + '</div>', `<div class="fx-id ko">${m.label}</div>`);
+    }).join('') + `</div>`;
+  }
+
+  async function boot() { await refreshSchedule(); render(); }
+  boot();
+  setInterval(boot, 30000);   // pick up updated times/venues live
+})();
+</script>
+</body>
+</html>

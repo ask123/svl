@@ -37,18 +37,23 @@ svl-main/                         ← repo root / Netlify publish dir
 ├── dev-local.mjs                 Zero-dep local server (static + auth) for testing Unlock
 ├── .env                          LOCAL ONLY, git-ignored: auction_unlock=... (create yourself)
 ├── netlify/functions/
-│   ├── auth.mjs                  POST { password } → { ok } vs env var `auction_unlock`
-│   └── player-photo.mjs          GET/POST photo (open) + DELETE (token-gated), Netlify Blobs
+│   ├── auth.mjs                  POST { password } → { ok, token } vs env var `auction_unlock`
+│   ├── player-photo.mjs          GET/POST photo (open) + DELETE (token-gated), Netlify Blobs
+│   └── schedule.mjs              GET fixtures state (public) + PUT (token-gated), Netlify Blobs
 └── seasons/
     └── season-1-unity/           ← one folder per season (copy this pattern for S2)
         ├── index.html            Players & Teams page (public)
         ├── auction.html          Auction console (view-only; password unlocks editing)
         ├── rules.html            Rules & how-to-run-the-auction
+        ├── schedule.html         Fixtures/timetable (reads live from schedule.mjs)
+        ├── results.html          Standings + match results + knockout bracket (live, polls)
+        ├── schedule-admin.html   Organiser editor: update times/venues/scores → Blobs
         ├── players.js            DATA: SEASON config, TEAMS, PLAYERS[], helpers
         ├── season.js             Renders the public players/teams page + photo upload UI
         ├── auction.js            Auction console logic (view/edit, budget, export)
+        ├── schedule.js           DATA: fixtures (double RR) + standings/bracket + live sync
         ├── season.css            UNITY theme (extends ../../styles.css)
-        ├── results.js            (created AFTER the auction — see §6) not committed yet
+        ├── results.js            Published auction rosters (placeholder null until auction)
         └── assets/
             ├── *.jpeg            5 team logos + unity-all-teams.jpeg (combined)
             └── players/          uploaded photos live in Netlify Blobs, not here;
@@ -116,6 +121,25 @@ svl-main/                         ← repo root / Netlify publish dir
    "most expensive pick", etc. (Not built yet.)
 
 ---
+
+## 6b. Fixtures, live scores & standings
+
+- **Format:** double round robin — 5 teams, each plays every other twice → **8 matches each, 20
+  league matches** (rounds 1–10, one team byes per round). Then **top 4 → semifinals, 5th
+  eliminated**; semis & final are **best of 3 sets** (league matches are a single set).
+- **Fixtures** are defined statically in `schedule.js` (`MATCHES`, ids L01–L20 + SF1/SF2/F).
+- **Live data lives in Netlify Blobs**, not the file: `schedule.mjs` stores an `overrides` object
+  keyed by match id — `{ day, date, time, venue, result }`. Pages fetch it (public GET) and layer
+  it over the static fixtures, so day/time/venue and scores update live.
+  - `schedule.html` polls every 30s; `results.html` polls every 15s.
+- **Updating during the season:** open **`schedule-admin.html`**, click **Unlock** (organiser
+  password → token), edit any match's day/date/time/venue and score, click **Save all** → PUT to
+  `schedule.mjs` (token-gated) → everyone's Schedule/Results pages reflect it within seconds.
+  - League score = single set `{home, away}`. Knockout score = `sets` like `25-20, 23-25, 15-11`.
+- **Standings** (`results.html`) are computed from league results: P/W/L, points-for/against, diff,
+  Pts (win = `SCHEDULE.pointsPerWin`, default 3). Top 4 highlighted green, 5th red. The **bracket**
+  resolves seeds (1v4, 2v3) once the league is complete, then the final from the semi winners.
+- Requires Netlify (Blobs). Locally, pages fall back to static fixtures with "TBD" everywhere.
 
 ## 7. Player photos (Netlify Blobs)
 

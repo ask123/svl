@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Standings &amp; Results</title>
+<meta name="description" content="Volleyball Premier League Season 1 (UNITY) — league standings, match results, and the knockout bracket.">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
+    <div class="nav-links">
+      <a href="index.html">Players &amp; Teams</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="results.html">Results</a>
+      <a href="rules.html">Rules</a>
+    </div>
+    <a href="schedule.html" class="nav-cta">Fixtures</a>
+  </div>
+</nav>
+
+<header class="vpl-hero" style="padding:52px 0 36px;">
+  <div class="wrap" style="grid-template-columns:1fr;">
+    <div>
+      <span class="eyebrow">Season 1 · UNITY · Standings</span>
+      <h1 style="font-size:clamp(32px,5vw,52px);">Results &amp; Table</h1>
+      <p class="lead">Live league standings, match results, and the road to the Grand Final. Top 4 reach the semifinals; 5th is eliminated.</p>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:40px;">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:18px;">
+      <span class="tag">League table</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);">Standings</h2>
+    </div>
+    <div class="table-wrap"><table class="standings" id="standings"></table></div>
+    <p class="count-note" id="tableKey" style="margin-top:12px;"></p>
+
+    <div class="section-head" style="margin:44px 0 18px;">
+      <span class="tag">Knockouts</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);">Bracket</h2>
+    </div>
+    <div id="bracket" class="bracket"></div>
+
+    <div class="section-head" style="margin:44px 0 18px;">
+      <span class="tag">Match results</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);">League matches</h2>
+    </div>
+    <div id="leagueResults"></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <span style="display:flex; gap:18px;">
+      <a href="schedule-admin.html">Admin</a>
+      <a href="schedule.html">Fixtures &amp; schedule →</a>
+    </span>
+  </div>
+</footer>
+
+<script src="players.js"></script>
+<script src="schedule.js"></script>
+<script>
+(function () {
+  function render() {
+  const done = leagueComplete();
+  const q = SCHEDULE.qualifiers;
+
+  /* ---- standings table ---- */
+  const rows = standings();
+  const anyPlayed = rows.some(r => r.P > 0);
+  const head = `<thead><tr>
+      <th>#</th><th class="ta-l">Team</th><th>P</th><th>W</th><th>L</th>
+      <th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr></thead>`;
+  const body = rows.map(r => {
+    const t = teamById(r.id);
+    const cls = r.rank <= q ? 'qualify' : 'eliminated';
+    const diff = r.PF - r.PA;
+    return `<tr class="${anyPlayed ? cls : ''}">
+      <td class="rank">${r.rank}</td>
+      <td class="ta-l"><span class="fx-team"><img src="${t.logo}" alt=""><span>${t.name}</span></span></td>
+      <td>${r.P}</td><td>${r.W}</td><td>${r.L}</td>
+      <td>${r.PF}</td><td>${r.PA}</td><td>${diff > 0 ? '+' + diff : diff}</td>
+      <td class="pts">${r.Pts}</td></tr>`;
+  }).join('');
+  document.getElementById('standings').innerHTML = head + `<tbody>${body}</tbody>`;
+  document.getElementById('tableKey').innerHTML = anyPlayed
+    ? `<span class="key-dot qualify"></span> Top ${q} qualify for semifinals &nbsp;·&nbsp; <span class="key-dot eliminated"></span> 5th eliminated &nbsp;·&nbsp; Win = ${SCHEDULE.pointsPerWin} pts. PF/PA = points for/against (single set).`
+    : `No matches played yet — the table fills in as results come in. Win = ${SCHEDULE.pointsPerWin} pts.`;
+
+  /* ---- knockout bracket ---- */
+  function side(id, fallback, winnerId, setsWon) {
+    const t = id ? teamById(id) : null;
+    const win = id && winnerId && id === winnerId;
+    if (t) return `<div class="bk-team ${win ? 'win' : ''}">
+        <img src="${t.logo}" alt=""><span>${t.name}</span>${setsWon != null ? `<b>${setsWon}</b>` : ''}</div>`;
+    return `<div class="bk-team tbd"><span class="fx-dot"></span><span>${fallback}</span></div>`;
+  }
+  document.getElementById('bracket').innerHTML = knockoutMatches().map(m => {
+    const rt = resolveTeams(m);
+    const w = knockoutWinner(m);
+    const { sh, sa } = knockoutSetsWon(m);
+    const played = m.result && Array.isArray(m.result.sets) && m.result.sets.length;
+    const scoreLine = played
+      ? `<div class="bk-sets">${m.result.sets.map(([h, a]) => `${h}-${a}`).join(' · ')}</div>` : '';
+    return `<div class="bk-match">
+      <div class="bk-title">${m.label} <span>best of ${m.bestOf}</span></div>
+      ${side(rt.home, slotLabel(m.src.home), w, played ? sh : null)}
+      ${side(rt.away, slotLabel(m.src.away), w, played ? sa : null)}
+      ${scoreLine}
+      ${w ? `<div class="bk-winner">🏆 ${teamById(w).name}</div>` : `<div class="bk-status">${(rt.home && rt.away) ? 'Awaiting result' : 'Awaiting qualifiers'}</div>`}
+    </div>`;
+  }).join('');
+
+  /* ---- league match results ---- */
+  const roundsList = [...new Set(leagueMatches().map(m => m.round))].sort((a, b) => a - b);
+  document.getElementById('leagueResults').innerHTML = roundsList.map(r => {
+    const ms = leagueMatches().filter(m => m.round === r);
+    return `<div class="round-block">
+      <div class="round-head"><span class="round-name">Round ${r}</span></div>
+      <div class="fx-grid">${ms.map(m => {
+        const res = leagueResult(m);
+        const H = teamById(m.home), A = teamById(m.away);
+        const hw = res && res.winner === m.home, aw = res && res.winner === m.away;
+        return `<div class="fx-card">
+          <div class="fx-id">${m.id}</div>
+          <div class="rs-row ${hw ? 'win' : ''}"><span class="fx-team"><img src="${H.logo}" alt=""><span>${H.name}</span></span><b>${res ? res.home : '–'}</b></div>
+          <div class="rs-row ${aw ? 'win' : ''}"><span class="fx-team"><img src="${A.logo}" alt=""><span>${A.name}</span></span><b>${res ? res.away : '–'}</b></div>
+          <div class="fx-meta"><span>${res ? '✓ Result' : (m.date || m.time ? [m.day, m.date, m.time].filter(Boolean).join(' · ') : 'Not played yet')}</span></div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+  }
+
+  async function boot() { await refreshSchedule(); render(); }
+  boot();
+  setInterval(boot, 15000);   // live scores/standings refresh
+})();
+</script>
+</body>
+</html>

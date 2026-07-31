@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Schedule Admin</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+</head>
+<body>
+
+<div class="auc-wrap">
+  <div class="auc-top">
+    <div>
+      <h1>Season 1 · Schedule Admin</h1>
+      <div class="sub">Update match days, dates, times, venues and scores. Saves live to Netlify — the Schedule &amp; Results pages update automatically.</div>
+    </div>
+    <div class="auc-actions">
+      <a class="auc-btn" href="results.html">View results →</a>
+      <a class="auc-btn" href="schedule.html">View schedule →</a>
+    </div>
+  </div>
+
+  <div class="mode-bar viewing" id="modeBar">
+    <span class="mode-tag">🔒 Locked — enter the organiser password to edit</span>
+    <button class="auc-btn primary" id="unlockBtn">🔓 Unlock</button>
+  </div>
+
+  <div id="editor" style="display:none;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="players.js"></script>
+<script src="schedule.js"></script>
+<script>
+(function () {
+  let token = sessionStorage.getItem('vpl-s1-token') || null;
+  const $ = (id) => document.getElementById(id);
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200); }
+  function val(id){ const el=$(id); return el ? el.value.trim() : ''; }
+
+  async function authenticate(pw){
+    try{
+      const res=await fetch('/.netlify/functions/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+      const d=await res.json().catch(()=>({}));
+      return (res.ok && d.ok===true) ? (d.token||'') : null;
+    }catch(e){ return null; }
+  }
+
+  function fieldsFor(m, teamsHtml){
+    const isKO = m.phase !== 'league';
+    const scoreHtml = isKO
+      ? `<div><label>Set scores (e.g. 25-20, 23-25, 15-11)</label><input id="sets-${m.id}" type="text" placeholder="home-away, …"></div>`
+      : `<div><label>Score</label><div class="adm-score"><input id="sh-${m.id}" type="number" min="0" placeholder="H"> – <input id="sa-${m.id}" type="number" min="0" placeholder="A"></div></div>`;
+    return `<div class="adm-row" data-id="${m.id}">
+      <div class="adm-teams"><span class="adm-id">${m.id}</span> ${teamsHtml}</div>
+      <div class="adm-fields">
+        <div><label>Day</label><input id="d-${m.id}" type="text" placeholder="e.g. Tuesday"></div>
+        <div><label>Date</label><input id="dt-${m.id}" type="text" placeholder="e.g. 12 Aug 2026"></div>
+        <div><label>Time</label><input id="tm-${m.id}" type="text" placeholder="e.g. 7:00 PM"></div>
+        <div><label>Venue</label><input id="v-${m.id}" type="text" placeholder="e.g. Court 3"></div>
+        ${scoreHtml}
+      </div>
+    </div>`;
+  }
+  function teamName(id, fallback){ const t=id?teamById(id):null; return t?t.name:(fallback||'TBD'); }
+
+  function renderEditor(){
+    let html = `<div class="section-head" style="margin:8px 0 14px;"><span class="tag">League — 20 matches</span></div>`;
+    leagueMatches().forEach(m => {
+      html += fieldsFor(m, `${teamName(m.home)} <span class="fx-vs">vs</span> ${teamName(m.away)}`);
+    });
+    html += `<div class="section-head" style="margin:22px 0 14px;"><span class="tag">Knockouts — best of 3</span></div>`;
+    knockoutMatches().forEach(m => {
+      const rt = resolveTeams(m);
+      html += fieldsFor(m, `${m.label}: ${teamName(rt.home, slotLabel(m.src.home))} <span class="fx-vs">vs</span> ${teamName(rt.away, slotLabel(m.src.away))}`);
+    });
+    html += `<div class="adm-savebar"><button class="auc-btn primary" id="saveBtn">💾 Save all changes</button><button class="auc-btn" id="lockBtn">Lock</button><span class="count-note" id="saveNote"></span></div>`;
+    $('editor').innerHTML = html;
+
+    // prefill from current live data (already applied to MATCHES by boot())
+    MATCHES.forEach(m => {
+      if ($('d-'+m.id))  $('d-'+m.id).value  = m.day || '';
+      if ($('dt-'+m.id)) $('dt-'+m.id).value = m.date || '';
+      if ($('tm-'+m.id)) $('tm-'+m.id).value = m.time || '';
+      if ($('v-'+m.id))  $('v-'+m.id).value  = m.venue || '';
+      if (m.phase === 'league') {
+        if (m.result && m.result.home != null) { $('sh-'+m.id).value = m.result.home; $('sa-'+m.id).value = m.result.away; }
+      } else if (m.result && Array.isArray(m.result.sets)) {
+        $('sets-'+m.id).value = m.result.sets.map(s => `${s[0]}-${s[1]}`).join(', ');
+      }
+    });
+    $('saveBtn').addEventListener('click', save);
+    $('lockBtn').addEventListener('click', () => { token=null; sessionStorage.removeItem('vpl-s1-token'); location.reload(); });
+  }
+
+  function collectOverrides(){
+    const overrides = {};
+    MATCHES.forEach(m => {
+      const o = {};
+      const day=val('d-'+m.id), date=val('dt-'+m.id), time=val('tm-'+m.id), venue=val('v-'+m.id);
+      if (day) o.day=day; if (date) o.date=date; if (time) o.time=time; if (venue) o.venue=venue;
+      if (m.phase === 'league') {
+        const h=val('sh-'+m.id), a=val('sa-'+m.id);
+        if (h!=='' && a!=='') o.result = { home:Number(h), away:Number(a) };
+      } else {
+        const raw = val('sets-'+m.id);
+        if (raw) {
+          const sets = raw.split(',').map(s=>s.trim()).filter(Boolean).map(p=>{
+            const [h,a]=p.split('-').map(x=>Number(x.trim())); return [h,a];
+          }).filter(p=>!isNaN(p[0]) && !isNaN(p[1]));
+          if (sets.length) o.result = { sets };
+        }
+      }
+      if (Object.keys(o).length) overrides[m.id] = o;
+    });
+    return overrides;
+  }
+
+  async function save(){
+    if (!token){ toast('Unlock first'); return; }
+    $('saveNote').textContent = 'Saving…';
+    const ok = await saveOverrides(collectOverrides(), token);
+    if (ok){ toast('Saved ✓ — live on Schedule & Results'); $('saveNote').textContent='Saved ✓'; }
+    else { toast('Save failed (session expired? unlock again, or deploy on Netlify)'); $('saveNote').textContent='Save failed'; }
+  }
+
+  async function unlock(){
+    const pw = prompt('Organiser password:');
+    if (pw == null) return;
+    toast('Checking…');
+    const t = await authenticate(pw);
+    if (t !== null){
+      token = t; sessionStorage.setItem('vpl-s1-token', t);
+      $('modeBar').className = 'mode-bar editing';
+      $('modeBar').innerHTML = '<span class="mode-tag">✏️ Editing — changes save live when you click Save</span>';
+      $('editor').style.display = 'block';
+      renderEditor();
+    } else { toast('Incorrect password (or run on the deployed Netlify site)'); }
+  }
+
+  $('unlockBtn').addEventListener('click', unlock);
+
+  // load current live data first (so prefill reflects what's online)
+  (async () => {
+    await refreshSchedule();
+    if (token) { // already unlocked this session
+      $('modeBar').className = 'mode-bar editing';
+      $('modeBar').innerHTML = '<span class="mode-tag">✏️ Editing — changes save live when you click Save</span>';
+      $('editor').style.display = 'block';
+      renderEditor();
+    }
+  })();
+})();
+</script>
+</body>
+</html>
