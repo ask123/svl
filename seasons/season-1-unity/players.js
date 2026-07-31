@@ -191,7 +191,14 @@ function teamById(id) {
    ------------------------------------------------------------ */
 const PHOTO_ENDPOINT = '/.netlify/functions/player-photo';
 function initials(name) {
-  return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letter = (w) => { const m = w.match(/[A-Za-z]/); return m ? m[0].toUpperCase() : ''; };
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) {                         // single name → first two letters
+    const s = parts[0].replace(/[^A-Za-z]/g, '');
+    return (s.slice(0, 2) || parts[0].slice(0, 2)).toUpperCase();
+  }
+  return (letter(parts[0]) + letter(parts[parts.length - 1])) || '?';  // first + last initial
 }
 function photoSrc(p) {
   return p.photo || (PHOTO_ENDPOINT + '?id=' + p.id);

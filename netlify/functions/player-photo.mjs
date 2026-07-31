@@ -66,5 +66,3 @@ export default async (req) => {
 
   return json({ error: 'method not allowed' }, 405);
 };
-
-export const config = { path: '/.netlify/functions/player-photo' };

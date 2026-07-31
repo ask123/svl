@@ -119,6 +119,12 @@
 
 /* ---------- Player pool ---------- */
 .pool-section{ padding:24px 0 88px; }
+.pool-hint{
+  margin-top:14px; padding:12px 16px;
+  background:var(--spike-soft); color:#8a3410;
+  border-radius:12px; font-size:14px; line-height:1.5;
+}
+.pool-hint strong{ color:#B14200; }
 .pool-toolbar{
   display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
   margin-bottom:22px;
@@ -151,16 +157,21 @@
 .player-card .pc-top{ display:flex; align-items:center; gap:12px; }
 .pc-avatar-wrap{ position:relative; flex-shrink:0; line-height:0; }
 .pc-upload{
-  position:absolute; right:-6px; bottom:-6px;
+  position:absolute; right:-5px; bottom:-5px;
   width:22px; height:22px; border-radius:50%;
-  border:2px solid var(--surface); background:var(--ink); color:#fff;
+  border:2px solid var(--surface); background:var(--spike); color:#fff;
   font-size:10px; line-height:1; cursor:pointer; padding:0;
   display:flex; align-items:center; justify-content:center;
-  opacity:0; transform:scale(.8); transition:all .18s var(--ease);
+  transition:transform .18s var(--ease), background .18s var(--ease);
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
-.player-card:hover .pc-upload, .pc-upload:focus-visible{ opacity:1; transform:scale(1); }
-.pc-upload:hover{ background:var(--spike); }
-@media (hover:none){ .pc-upload{ opacity:1; transform:scale(1); } }
+.pc-upload:hover, .pc-upload:focus-visible{ transform:scale(1.12); background:var(--court-2); }
+/* avatars without a photo look like an "add your photo" slot */
+.player-avatar:not(:has(img)){
+  background:linear-gradient(150deg, #2b3f6b, #152B5C);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,0.18);
+}
+.player-avatar:not(:has(img))::after{ opacity:0.92; }
 /* admin-only delete button (top-left of avatar) */
 .pc-delete{
   position:absolute; left:-6px; top:-6px;
