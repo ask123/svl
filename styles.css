@@ -223,6 +223,12 @@ button{font-family:inherit;}
 }
 .sb-caption{font-size:11.5px; color:rgba(255,255,255,0.4); text-align:center;}
 
+/* ---------- Hero organiser contact ---------- */
+.hero-contact{ margin-top:22px; }
+.hero-contact-label{
+  display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:10px;
+}
+
 /* ---------- Season 1 spotlight card (hero) ---------- */
 .s1-card{
   display:block;
