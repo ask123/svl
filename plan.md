@@ -34,6 +34,8 @@ svl-main/                         ← repo root / Netlify publish dir
 ├── package.json                  dep: @netlify/blobs (for photo storage)
 ├── .gitignore                    blocks *.csv, *.zip, .DS_Store, node_modules
 ├── plan.md                       ← this file
+├── dev-local.mjs                 Zero-dep local server (static + auth) for testing Unlock
+├── .env                          LOCAL ONLY, git-ignored: auction_unlock=... (create yourself)
 ├── netlify/functions/
 │   ├── auth.mjs                  POST { password } → { ok } vs env var `auction_unlock`
 │   └── player-photo.mjs          GET/POST photo (open) + DELETE (token-gated), Netlify Blobs
@@ -126,11 +128,39 @@ svl-main/                         ← repo root / Netlify publish dir
 
 ## 8. Local dev & deploy
 
-- **Static preview:** `cd svl-main && python3 -m http.server` → open
-  `http://localhost:8000/seasons/season-1-unity/index.html`. (Photos/functions won't work here.)
-- **With functions/Blobs:** install Netlify CLI, then `netlify dev` from `svl-main`.
-- **Deploy:** push to GitHub; Netlify builds from `netlify.toml` and auto-installs `@netlify/blobs`.
-  Merge `season-1-unity` → `main` to publish to production.
+Unlock (auction/admin) and photos call Netlify functions, so a plain static server can't
+test them. **First set a local password:** create `svl-main/.env` (git-ignored) with
+`auction_unlock=your-local-password` — that's what you type into "Unlock" locally.
+(Production uses the Netlify dashboard env var of the same name.)
+
+**Option 1 — lite dev server (quick; Unlock + full UI, no install):**
+```
+node dev-local.mjs      # → http://localhost:8899/seasons/season-1-unity/index.html
+```
+Serves the site + the `auth` function, so Unlock and Admin work. Photos fall back to
+initials (they need Blobs). Zero dependencies — just Node.
+
+**Option 2 — full Netlify Dev (adds photos / Blobs):**
+```
+npm install                         # gets @netlify/blobs
+npm install -g netlify-cli          # or: npm install --no-save netlify-cli  → npx netlify dev
+netlify dev                         # → http://localhost:8888
+```
+If you `netlify link` the site, Dev pulls `auction_unlock` from Netlify (no .env needed).
+(Note: `netlify dev` sets up an Edge Functions runtime on boot; in a locked-down network it
+may fail there — the lite server in Option 1 avoids that.)
+
+**To unlock locally:** open the auction page → "🔓 Unlock to run auction" → type the `.env`
+password. Sanity check the endpoint directly:
+```
+curl -s -X POST localhost:8899/.netlify/functions/auth \
+  -H 'Content-Type: application/json' -d '{"password":"your-local-password"}'
+# → {"ok":true,"token":"..."}
+```
+
+**Deploy:** push to GitHub; Netlify builds from `netlify.toml` and auto-installs `@netlify/blobs`.
+Set the `auction_unlock` env var in the Netlify dashboard and redeploy. Merge
+`season-1-unity` → `main` to publish to production.
 
 ---
 
