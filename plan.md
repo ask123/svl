@@ -140,6 +140,11 @@ svl-main/                         ← repo root / Netlify publish dir
   Pts (win = `SCHEDULE.pointsPerWin`, default 3). Top 4 highlighted green, 5th red. The **bracket**
   resolves seeds (1v4, 2v3) once the league is complete, then the final from the semi winners.
 - Requires Netlify (Blobs). Locally, pages fall back to static fixtures with "TBD" everywhere.
+- **Auto stage tracker:** the Season 1 page shows a live "Registration → Auction → League →
+  Semifinals → Grand Final" tracker (`seasonStage()` in schedule.js). It derives the current stage
+  from data — auction done when rosters are published, league progress/complete and finals from the
+  live scores — and polls every 30s, so it advances on its own. A condensed "how it works" flow
+  strip also appears on the home page and at the top of the Season 1 page.
 
 ## 7. Player photos (Netlify Blobs)
 

@@ -184,8 +184,39 @@ async function saveOverrides(overrides, token) {
   return res.ok;
 }
 
+/* current season stage (auto-derived from data): registration → auction → league → semis → final */
+function seasonStage() {
+  const players = (typeof getPlayers === 'function') ? getPlayers() : [];
+  const auctionDone = players.some(p => p.team);
+  const lm = leagueMatches();
+  const played = lm.filter(m => leagueResult(m)).length;
+  const leagueDone = leagueComplete();
+  const sf = MATCHES.filter(m => m.phase === 'semifinal');
+  const semisDone = sf.length > 0 && sf.every(m => knockoutWinner(m));
+  const finalM = matchById('F');
+  const champion = knockoutWinner(finalM);
+  const finalDone = !!champion;
+
+  const stages = [
+    { key: 'registration', label: 'Registration', icon: '📝', done: true,
+      detail: players.length + ' players' },
+    { key: 'auction', label: 'Auction', icon: '🔨', done: auctionDone,
+      detail: auctionDone ? 'Teams drafted' : 'Coming up' },
+    { key: 'league', label: 'League', icon: '📅', done: leagueDone,
+      detail: leagueDone ? 'Complete' : (played ? played + '/' + lm.length + ' played' : 'Double round robin') },
+    { key: 'semis', label: 'Semifinals', icon: '🥈', done: semisDone,
+      detail: semisDone ? 'Finalists set' : 'Top 4 advance' },
+    { key: 'final', label: 'Grand Final', icon: '🏆', done: finalDone,
+      detail: champion && teamById(champion) ? '🏆 ' + teamById(champion).name : 'The decider' },
+  ];
+  let current = stages.findIndex(s => !s.done);
+  if (current === -1) current = stages.length - 1;
+  return { stages, current, champion };
+}
+
 window.SCHEDULE = SCHEDULE;
 window.MATCHES = MATCHES;
+window.seasonStage = seasonStage;
 window.SCHEDULE_ENDPOINT = SCHEDULE_ENDPOINT;
 window.applyOverrides = applyOverrides;
 window.loadOverrides = loadOverrides;

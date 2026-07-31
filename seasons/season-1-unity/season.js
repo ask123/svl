@@ -19,6 +19,31 @@
   const flowCount = document.getElementById('flowPlayerCount');
   if (flowCount) flowCount.textContent = players.length;
 
+  /* ---------- season stage tracker (auto-updates) ---------- */
+  function renderStage() {
+    const el = document.getElementById('stageTracker');
+    if (!el || typeof seasonStage !== 'function') return;
+    const { stages, current } = seasonStage();
+    el.innerHTML = stages.map((s, i) => {
+      const cls = s.done ? 'done' : (i === current ? 'active' : 'upcoming');
+      const node = s.done ? '✓' : (i + 1);
+      return `<div class="stage ${cls}">
+        <div class="stage-node">${node}</div>
+        <div class="stage-name">${s.icon} ${s.label}</div>
+        <div class="stage-detail">${s.detail}</div>
+      </div>`;
+    }).join('');
+  }
+  if (document.getElementById('stageTracker')) {
+    renderStage();
+    const tickStage = async () => {
+      if (typeof refreshSchedule === 'function') { try { await refreshSchedule(); } catch (e) {} }
+      renderStage();
+    };
+    tickStage();                       // fetch live schedule, then update
+    setInterval(tickStage, 30000);     // keep it current during the season
+  }
+
   /* ---------- Teams grid ---------- */
   function renderTeams() {
     const grid = document.getElementById('teamsGrid');
