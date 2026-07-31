@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# OS junk
+.DS_Store
+**/.DS_Store
+
+# Personal data — NEVER commit registration exports (names, phones, emails, IPs)
+*.csv
+registration*.csv
+
+# Local archives / originals
+*.zip
+
+# Netlify local dev
+.netlify/
+
+# Editor
+.vscode/

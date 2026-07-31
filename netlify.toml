@@ -1,0 +1,13 @@
+# Netlify configuration for the VPL site
+# Assumes the repository root is this folder (svl-main) — i.e. index.html sits
+# at the site root, matching sydneyvbleague.netlify.app.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Netlify Forms already collects registrations (see register.js).
+# Player photos are stored in Netlify Blobs via the player-photo function.

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Auction Rules &amp; How-to</title>
+<meta name="description" content="Volleyball Premier League Season 1 (UNITY) — auction rules, budget, base prices, squad sizes, and a step-by-step guide to running the auction.">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
+    <div class="nav-links">
+      <a href="index.html">Players &amp; Teams</a>
+      <a href="#format">Format</a>
+      <a href="#bidding">Bidding</a>
+      <a href="#run">How to run it</a>
+    </div>
+    <a href="auction.html" class="nav-cta">Auction console</a>
+  </div>
+</nav>
+
+<header class="vpl-hero" style="padding:56px 0 40px;">
+  <div class="wrap" style="grid-template-columns:1fr;">
+    <div>
+      <span class="eyebrow">Season 1 · UNITY · Auction rules</span>
+      <h1 style="font-size:clamp(34px,5vw,56px);">Auction Rules &amp; Playbook</h1>
+      <p class="lead">Everything for auction night — the budget, base prices, how bidding works, how teams are balanced, and a step-by-step guide to running it from the console.</p>
+    </div>
+  </div>
+</header>
+
+<!-- FORMAT AT A GLANCE -->
+<section class="section" id="format" style="padding-top:56px;">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">At a glance</span>
+      <h2>The format</h2>
+      <p>Five teams are built live from one player pool. Owners are drawn on the day and are part of their team.</p>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);">
+      <div class="stat"><div class="num">5</div><div class="lbl">Teams &amp; owners</div></div>
+      <div class="stat"><div class="num">$100k</div><div class="lbl">Budget / team</div></div>
+      <div class="stat"><div class="num">$15k / $5k</div><div class="lbl">Base: spiker / other</div></div>
+      <div class="stat"><div class="num">7–8</div><div class="lbl">Players / team</div></div>
+      <div class="stat"><div class="num">$1k</div><div class="lbl">Min bid raise</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- OWNERS & TEAMS -->
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Owners &amp; teams</span>
+      <h2>Owners are drawn — and they play</h2>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="ri">🎟️</div>
+        <h4>Team by chit</h4>
+        <p>On auction day the 5 owners each draw a team chit — Ultra Eagles, Nitro Kangaroos, Ignite Emus, Thunder Tigers or Young Yaks. That decides which team they own.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">👤</div>
+        <h4>Owner = player</h4>
+        <p>Each owner is part of their own team and counts as one of its players. So every team is the owner plus the players they win at auction.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">💰</div>
+        <h4>$100k each</h4>
+        <p>Every team starts with an equal purse of <strong>$100,000</strong> to build its squad. The owner joins at no cost to the purse.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">🎲</div>
+        <h4>Nomination by chit</h4>
+        <p>All remaining players' chits go into a draw. A chit is pulled → that player goes “on the block” → all five owners bid.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BIDDING -->
+<section class="section" id="bidding">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Base prices &amp; bidding</span>
+      <h2>How bidding works</h2>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="ri">$15k</div>
+        <h4>Spiker base price</h4>
+        <p><strong>Spikers</strong> — Outside Hitters and Opposite / Right-Side attackers — start at <strong>$15,000</strong>.</p>
+        <span class="flag">16 spikers in the pool</span>
+      </div>
+      <div class="rule-card">
+        <div class="ri">$5k</div>
+        <h4>Everyone else</h4>
+        <p>Setters, Middle Blockers, Liberos and Defensive Specialists start at <strong>$5,000</strong>.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">+$1k</div>
+        <h4>Bid increments</h4>
+        <p>Bids rise in minimum steps of <strong>$1,000</strong>. Highest bid when the hammer falls wins the player at that price.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">🛡️</div>
+        <h4>Max-bid safety cap</h4>
+        <p>An owner can never bid so much that they can't finish a legal squad. Their max bid is capped so every remaining slot can still be filled at base price.</p>
+        <span class="flag warn">Shown live in the console</span>
+      </div>
+    </div>
+
+    <!-- worked example -->
+    <div class="sched-band" style="margin-top:24px; grid-template-columns:1fr;">
+      <div>
+        <h3>Max-bid — worked example</h3>
+        <p style="max-width:70ch;">A team needs <strong>4 more players</strong> (including the one on the block) and has <strong>$60,000</strong> left.
+        After winning this player, 3 slots remain — each must keep at least the $5,000 base in reserve, i.e. <strong>3 × $5,000 = $15,000</strong> held back.</p>
+        <p style="font-size:20px; font-weight:800; color:#fff; margin-top:12px;">
+          Max bid = $60,000 − $15,000 = <span style="color:#FFB088;">$45,000</span>
+        </p>
+        <p style="margin-top:10px;">The console works this out automatically for every team, so the auctioneer can see each owner's ceiling at a glance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SQUAD SIZE & BALANCING -->
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Squad size &amp; balancing</span>
+      <h2>Filling the teams fairly</h2>
+      <p>We're aiming for even squads. Exact numbers depend on final registrations — the rules below keep it balanced no matter what.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-when">Target</div>
+        <div class="tl-body">
+          <h4>7 or 8 per team (owner included)</h4>
+          <p>Ideally teams are equal. With the current pool that means owner + 6 or owner + 7 — roughly 8 / 8 / 8 / 7 / 7. We're expecting 2 more registrations to even things out.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Odd numbers</div>
+        <div class="tl-body">
+          <h4>Extra player → team with the most budget left</h4>
+          <p>If the pool doesn't divide evenly, any surplus player is placed with the team that has the highest remaining budget — so the team that spent least picks up the extra body.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Juniors</div>
+        <div class="tl-body">
+          <h4>Juniors join their parent's team</h4>
+          <p>Our two juniors — <strong>Virat Dadi</strong> and <strong>Dhruvan Obineedi</strong> — are placed directly with their parent's team (<strong>Kiran Dadi</strong> and <strong>Raghu Obineedi</strong>), not auctioned. If the 2 expected players don't register, this is how we keep numbers balanced.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UNSOLD -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Unsold players</span>
+      <h2>Nobody is left behind</h2>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-when">Step 1</div>
+        <div class="tl-body"><h4>Pass for now</h4><p>If a player gets no bid at base, they're marked <strong>unsold</strong> and we move on — keeps the room moving.</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 2</div>
+        <div class="tl-body"><h4>$5k re-auction round</h4><p>After the main round, all unsold players go back up at a flat <strong>$5,000</strong> base for a quick second round.</p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-when">Step 3</div>
+        <div class="tl-body"><h4>Chit draw</h4><p>Anyone still unsold is drawn by chit and assigned — but only to teams that still have a <strong>free slot and the budget</strong>. They join at the $5,000 base.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO RUN IT -->
+<section class="section section-alt" id="run">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">On the night</span>
+      <h2>How to run the auction (console guide)</h2>
+      <p>The <a href="auction.html" style="color:var(--spike); font-weight:700;">auction console</a> is the organiser's tool. It's password-protected and saves everything in your browser as you go.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-when">1 · Open</div><div class="tl-body"><h4>Unlock the console</h4><p>Open <strong>Auction console</strong> and enter the organiser password. Set the <strong>Squad target</strong> (7 or 8) at the top.</p></div></div>
+      <div class="tl-item"><div class="tl-when">2 · Owners</div><div class="tl-body"><h4>Draw &amp; seat the owners</h4><p>As each owner draws their team chit, find them in the list and assign them to that team. They now show as that team's first player.</p></div></div>
+      <div class="tl-item"><div class="tl-when">3 · Juniors</div><div class="tl-body"><h4>Place juniors (if needed)</h4><p>Assign Virat and Dhruvan to their parents' teams.</p></div></div>
+      <div class="tl-item"><div class="tl-when">4 · Nominate</div><div class="tl-body"><h4>Put a player on the block</h4><p>Draw a chit, then click <strong>Block</strong> next to that player (or hit <strong>Next unsold</strong>). Their photo, positions and base price show in the spotlight.</p></div></div>
+      <div class="tl-item"><div class="tl-when">5 · Bid</div><div class="tl-body"><h4>Take bids &amp; sell</h4><p>Watch each team's <strong>Left</strong> and <strong>Max bid</strong> on the boards. When sold, click the winning team's button in the spotlight and type the final price. It auto-advances to the next player.</p></div></div>
+      <div class="tl-item"><div class="tl-when">6 · Unsold</div><div class="tl-body"><h4>Handle unsold</h4><p>Leave passed players in the pool. After the main round, run the $5k re-auction, then the chit draw for any leftovers.</p></div></div>
+      <div class="tl-item"><div class="tl-when">7 · Publish</div><div class="tl-body"><h4>Export the results</h4><p>Click <strong>Export results</strong> to download <code>results.js</code>. Drop it into the season folder (and uncomment its line in <code>index.html</code>) — the Players &amp; Teams page then shows the final rosters to everyone.</p></div></div>
+    </div>
+
+    <div class="rule-card" style="margin-top:24px; border-color:var(--spike);">
+      <div class="ri">💡</div>
+      <h4>Tips</h4>
+      <p>• The console remembers everything even if the page reloads. • Use <strong>Copy JSON</strong> for a quick backup mid-auction. • Made a mistake? Click the <strong>×</strong> on a team board to send a player back to the pool.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <a href="index.html">Players &amp; Teams →</a>
+  </div>
+</footer>
+
+</body>
+</html>

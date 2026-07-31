@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · UNITY — Players & Teams</title>
+<meta name="description" content="Volleyball Premier League Season 1 (UNITY). Meet the registered players and the five teams — Ultra Eagles, Nitro Kangaroos, Ignite Emus, Thunder Tigers, Young Yaks.">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="../../index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
+    <div class="nav-links">
+      <a href="#teams">Teams</a>
+      <a href="#players">Players</a>
+      <a href="rules.html">Rules &amp; auction</a>
+      <a href="../../index.html">League home</a>
+    </div>
+    <a href="auction.html" class="nav-cta">Auction console</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="vpl-hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Auction Tournament 2026 · Season 1</span>
+      <h1><span class="season-line">Season 1 Theme</span>UNITY</h1>
+      <p class="lead">Inspired by powerful animals from Australia &amp; India — representing power, speed, energy, courage and teamwork. The first letters of our five teams come together to spell <strong>UNITY</strong> 🤝</p>
+      <div class="unity-strip" id="unityStrip"></div>
+    </div>
+    <div class="vpl-hero-art">
+      <img src="assets/unity-all-teams.jpeg" alt="VPL Season 1 team logos — Ultra Eagles, Nitro Kangaroos, Ignite Emus, Thunder Tigers, Young Yaks">
+    </div>
+  </div>
+</header>
+
+<!-- ============ TEAMS ============ -->
+<section class="section teams-section" id="teams">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag">Season 1 · UNITY</span>
+      <h2>Meet the five teams</h2>
+      <p>Five new squads, drafted from one player pool on auction night. The fun part begins now — wait for the auction to find out which team you'll be part of! 😃</p>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+  </div>
+</section>
+
+<!-- ============ PLAYERS ============ -->
+<section class="section section-alt pool-section" id="players">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-bottom:26px;">
+      <span class="tag">The player pool</span>
+      <h2 id="poolHeading">Season 1 registered players</h2>
+      <p id="poolSubtitle">All players who registered for Season 1, with their age group and preferred positions. Team assignments are revealed on auction night.</p>
+    </div>
+
+    <div class="pool-toolbar">
+      <div class="pool-filters" id="poolFilters"></div>
+      <div class="view-switch" id="viewSwitch" style="display:none;">
+        <button data-view="pool" class="active">All players</button>
+        <button data-view="rosters">By team</button>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="field pool-search" style="margin:0;">
+        <input type="text" id="poolSearch" placeholder="Search a player by name…">
+      </div>
+    </div>
+
+    <!-- Pool view -->
+    <div id="poolView">
+      <div class="player-grid" id="playerGrid"></div>
+      <p class="count-note" id="poolCount" style="margin-top:18px;"></p>
+    </div>
+
+    <!-- Roster view (post-auction) -->
+    <div id="rostersView" style="display:none;"></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <span style="display:flex; gap:18px; align-items:center;">
+      <a href="#" id="adminToggle" title="Organiser photo management">Admin</a>
+      <a href="../../index.html">League home →</a>
+    </span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="players.js"></script>
+<!-- <script src="results.js"></script>  publish final rosters here after the auction -->
+<script src="season.js"></script>
+</body>
+</html>

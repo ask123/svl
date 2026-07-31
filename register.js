@@ -53,7 +53,7 @@
 
   function makeId() {
     const n = Math.floor(1000 + Math.random() * 9000);
-    return 'FVL-' + n + '-' + new Date().getFullYear();
+    return 'VPL-' + n + '-' + new Date().getFullYear();
   }
 
   // ---------- Netlify Forms submission ----------
@@ -125,7 +125,7 @@
       .then(() => {
         document.getElementById('successId').textContent = id;
         document.getElementById('successName').textContent =
-          `Thanks, ${data.fullName.split(' ')[0]} — you're in the Friendly VolleyBall League player pool. ` +
+          `Thanks, ${data.fullName.split(' ')[0]} — you're in the Volleyball Premier League player pool. ` +
           `Your selected option is ${data.feeOption}. Payment details will be informed later based on responses.`;
 
         document.getElementById('formView').style.display = 'none';
