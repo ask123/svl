@@ -15,3 +15,9 @@
   }, { threshold: 0.12 });
   items.forEach(el => io.observe(el));
 })();
+
+// ---------- Season 1 spotlight: live player count ----------
+(function(){
+  const el = document.getElementById('s1PlayerCount');
+  if (el && Array.isArray(window.PLAYERS)) el.textContent = window.PLAYERS.length;
+})();
