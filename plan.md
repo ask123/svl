@@ -105,11 +105,13 @@ svl-main/                         ← repo root / Netlify publish dir
 ## 6. AFTER the auction — publish rosters (quick)
 
 1. In the console (edit mode) click **Export results** → downloads `results.js`.
-2. Put that file at `seasons/season-1-unity/results.js`.
-3. Uncomment the `results.js` `<script>` line in **`index.html`** and **`auction.html`**
-   (it's already there, commented, right after `players.js`).
-4. Commit + push + merge. The players page auto-switches to **roster view** (teams + drafted
-   players + prices) and the console shows final teams read-only.
+2. **Replace the contents** of `seasons/season-1-unity/results.js` with that file. The
+   `<script src="results.js">` include is already live on both pages (a placeholder
+   `window.RESULTS = null` ships by default), so there's no HTML change to make.
+3. Commit + push + merge → Netlify deploys. The players page auto-switches to **roster view**
+   (teams + drafted players + prices) and the console shows final teams read-only.
+4. Share the Season 1 page link with players:
+   `https://sydneyvbleague.netlify.app/seasons/season-1-unity/`
 5. **TODO (planned):** design a nicer post-auction reveal — team roster cards, sold prices,
    "most expensive pick", etc. (Not built yet.)
 
