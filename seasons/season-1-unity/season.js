@@ -261,23 +261,31 @@
   });
 
   /* ---------- admin mode (organiser) — enables photo delete ---------- */
-  const ADMIN_HASH = '33ebdbc951c231a047a2b913f4fbf2dc7d11bedea0481eb624fbb27ee195bd92';
   function isAdmin() { return sessionStorage.getItem('vpl-s1-admin') === '1'; }
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  // Verify against the Netlify env var `auction_unlock` (server-side).
+  async function checkPassword(pw) {
+    try {
+      const res = await fetch('/.netlify/functions/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      const d = await res.json().catch(() => ({}));
+      return res.ok && d.ok === true;
+    } catch (e) { return false; }
   }
   function rerender() { renderPool(); if (anyAssigned) renderRosters(); }
   async function enterAdmin() {
     const pw = prompt('Organiser password to manage photos:');
     if (pw == null) return;
-    try {
-      if ((await sha256(pw)) === ADMIN_HASH) {
-        sessionStorage.setItem('vpl-s1-admin', '1');
-        toast('Admin mode on — 🗑 delete buttons enabled');
-        rerender();
-      } else { toast('Incorrect password'); }
-    } catch (e) { toast('Password check needs https:// or localhost'); }
+    toast('Checking…');
+    if (await checkPassword(pw)) {
+      sessionStorage.setItem('vpl-s1-admin', '1');
+      toast('Admin mode on — 🗑 delete buttons enabled');
+      rerender();
+    } else {
+      toast('Incorrect password (or run it on the deployed Netlify site)');
+    }
   }
   function exitAdmin() { sessionStorage.removeItem('vpl-s1-admin'); toast('Admin mode off'); rerender(); }
 

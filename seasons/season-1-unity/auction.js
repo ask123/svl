@@ -3,7 +3,6 @@
    Assign players to teams live; state persists to localStorage.
    ============================================================ */
 (function () {
-  const PASS_HASH = '33ebdbc951c231a047a2b913f4fbf2dc7d11bedea0481eb624fbb27ee195bd92';
   const AUTH_KEY = 'vpl-s1-auction-auth';
   let editing = sessionStorage.getItem(AUTH_KEY) === '1';   // view-only until unlocked
 
@@ -19,9 +18,17 @@
 
   const $ = (id) => document.getElementById(id);
   const money = (n) => '$' + Number(n).toLocaleString();
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  // Verify the password server-side against the Netlify env var `auction_unlock`.
+  async function checkPassword(pw) {
+    try {
+      const res = await fetch('/.netlify/functions/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      const d = await res.json().catch(() => ({}));
+      return res.ok && d.ok === true;
+    } catch (e) { return false; }
   }
 
   /* ---------- budget maths ---------- */
@@ -275,14 +282,15 @@ window.RESULTS = RESULTS;
   async function unlockEditing() {
     const pw = prompt('Enter the organiser password to run the auction:');
     if (pw == null) return;
-    try {
-      if ((await sha256(pw)) === PASS_HASH) {
-        editing = true;
-        sessionStorage.setItem(AUTH_KEY, '1');
-        applyMode(); renderAll();
-        toast('Edit mode on — you can run the auction');
-      } else { toast('Incorrect password'); }
-    } catch (e) { toast('Password check needs https:// or localhost'); }
+    toast('Checking…');
+    if (await checkPassword(pw)) {
+      editing = true;
+      sessionStorage.setItem(AUTH_KEY, '1');
+      applyMode(); renderAll();
+      toast('Edit mode on — you can run the auction');
+    } else {
+      toast('Incorrect password (or run it on the deployed Netlify site)');
+    }
   }
   function lockEditing() {
     editing = false;

@@ -35,6 +35,7 @@ svl-main/                         ← repo root / Netlify publish dir
 ├── .gitignore                    blocks *.csv, *.zip, .DS_Store, node_modules
 ├── plan.md                       ← this file
 ├── netlify/functions/
+│   ├── auth.mjs                  POST { password } → { ok } vs env var `auction_unlock`
 │   └── player-photo.mjs          GET/POST/DELETE photo, stored in Netlify Blobs
 └── seasons/
     └── season-1-unity/           ← one folder per season (copy this pattern for S2)
@@ -88,8 +89,9 @@ svl-main/                         ← repo root / Netlify publish dir
 
 - **View-only by default** — anyone (players) can see teams, base prices, budgets, max-bid and a
   "how it works" explainer. No controls; mutators no-op.
-- **Organiser unlocks editing** via "🔓 Unlock to run auction" → enters the password. Only a
-  **SHA-256 hash** of the password is in the code (`PASS_HASH`), never the plaintext. Session flag:
+- **Organiser unlocks editing** via "🔓 Unlock to run auction" → enters the password, which is
+  verified **server-side** by `/.netlify/functions/auth` against the Netlify env var
+  **`auction_unlock`**. The password is NOT in the repo or client bundle. Session flag on success:
   `sessionStorage['vpl-s1-auction-auth']`.
 - In edit mode: put a player "on the block", click the winning team + type the price (auto-advances),
   drop players back, adjust squad target, **Export results / Copy JSON / Import / Reset**.
@@ -140,8 +142,8 @@ svl-main/                         ← repo root / Netlify publish dir
   real players register.
 - **Change budget / base prices / squad size:** edit the `SEASON` object in `players.js`.
 - **Change a team name / color / logo:** edit `TEAMS[]` and drop a new logo in `assets/`.
-- **Change the org password:** compute `printf '%s' 'NEWPASS' | shasum -a 256`, then replace
-  `PASS_HASH` in `auction.js` (and the copy in `season.js` used for the Admin/delete gate).
+- **Change the org password:** update the **`auction_unlock`** env var in Netlify
+  (Site settings → Environment variables) and redeploy. No code change needed.
 - **Start Season 2:** copy `seasons/season-1-unity/` → `seasons/season-2-<theme>/`, swap logos,
   team names/colors, theme CSS, and reset `PLAYERS[]`. Link it from the home nav.
 
@@ -162,9 +164,12 @@ svl-main/                         ← repo root / Netlify publish dir
 
 ## 11. Security notes
 
-- The auction/admin password is protected only by a **client-side SHA-256 hash** — good enough to
-  deter casual editing, NOT strong security (a determined viewer could brute-force the hash). Do not
-  reuse a sensitive password. For real protection use a Netlify Function that checks an env-var secret.
+- The auction/admin password is verified **server-side** against the Netlify env var
+  `auction_unlock` (via `functions/auth.mjs`), so the password is never in the repo or client bundle.
+  Note the UI gating (hiding edit controls) is still client-side, so this protects the *secret*, not
+  every action — the photo `player-photo` POST/DELETE endpoints are not yet password-checked (uploads
+  are open by design; deletes are admin-only in the UI). Tighten later if needed by requiring the
+  password on those calls too.
 - **Never commit** the registration CSV / exports (they hold phones, emails, IPs). `.gitignore`
   blocks `*.csv` / `*.zip`. `players.js` intentionally holds only name/age/gender/positions.
 - If you push with a GitHub token, **rotate it afterward** — don't leave it in chats or configs.
