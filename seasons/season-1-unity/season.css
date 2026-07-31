@@ -187,8 +187,8 @@
 .pc-delete:hover{ background:#a11; }
 @media (hover:none){ .pc-delete{ opacity:1; transform:scale(1); } }
 .player-avatar{
-  width:42px; height:42px; border-radius:12px; flex-shrink:0;
-  font-family:var(--font-display); font-weight:800; font-size:16px; color:#fff;
+  width:60px; height:60px; border-radius:14px; flex-shrink:0;
+  font-family:var(--font-display); font-weight:800; font-size:20px; color:#fff;
   background:linear-gradient(150deg, var(--court-2), var(--court));
   position:relative; overflow:hidden;
 }

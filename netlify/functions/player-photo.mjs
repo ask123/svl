@@ -30,13 +30,13 @@ export default async (req) => {
     const id = url.searchParams.get('id');
     if (!id || !ID_RE.test(id)) return json({ error: 'bad id' }, 400);
     const data = await store.get(id, { type: 'arrayBuffer' });
-    if (!data) return new Response('not found', { status: 404 });
+    if (!data) return new Response('not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
     return new Response(data, {
       status: 200,
       headers: {
         'Content-Type': 'image/jpeg',
-        // short cache so a freshly uploaded photo shows up quickly
-        'Cache-Control': 'public, max-age=60, must-revalidate',
+        // no-store so uploads/deletes reflect immediately on every page (no stale cache)
+        'Cache-Control': 'no-store, max-age=0',
       },
     });
   }
