@@ -49,8 +49,9 @@
     const grid = document.getElementById('teamsGrid');
     grid.innerHTML = TEAMS.map(t => {
       const count = players.filter(p => p.team === t.id).length;
+      const owner = players.find(p => p.team === t.id && p.owner);
       const countLine = anyAssigned
-        ? `<div class="tc-count"><b>${count}</b> player${count === 1 ? '' : 's'} drafted</div>`
+        ? `<div class="tc-count"><b>${count}</b> player${count === 1 ? '' : 's'}${owner ? ` · 👑 ${owner.name}` : ''}</div>`
         : `<div class="tc-count">Roster revealed on auction night</div>`;
       return `
       <a class="team-card" href="#players" data-team="${t.id}" style="--tc-primary:${t.primary}; --tc-accent:${t.accent};">
@@ -72,8 +73,9 @@
       : '';
     const strip = team ? `<span class="pc-team-strip" style="--pc-team:${team.primary}; background:${team.primary};"></span>` : '';
     return `
-      <div class="player-card ${team ? 'assigned' : ''}" data-id="${p.id}" data-name="${p.name.toLowerCase()}" data-team="${p.team || ''}" data-pos="${p.positions.join('|')}">
+      <div class="player-card ${team ? 'assigned' : ''} ${p.owner ? 'is-owner' : ''}" data-id="${p.id}" data-name="${p.name.toLowerCase()}" data-team="${p.team || ''}" data-pos="${p.positions.join('|')}">
         ${strip}
+        ${p.owner ? '<span class="pc-owner">👑 Owner</span>' : ''}
         <div class="pc-top">
           <span class="pc-avatar-wrap">
             ${avatarHTML(p)}
@@ -128,27 +130,41 @@
   }
 
   /* ---------- Roster view (post-auction) ---------- */
+  function memberRow(p) {
+    return `<li class="tr-player ${p.owner ? 'is-owner' : ''}">
+      ${avatarHTML(p, 'tr-av')}
+      <span class="tr-name">${p.name}${p.owner ? ' <span class="tr-crown" title="Team owner">👑</span>' : ''}</span>
+      <span class="tr-pos">${p.positions.map(x => POSITIONS[x] || x).join(' / ')}</span>
+    </li>`;
+  }
+  function teamRosterCard(t, roster) {
+    const owner = roster.find(p => p.owner);
+    return `
+      <div class="troster" style="--tc:${t.primary}; --ta:${t.accent};">
+        <div class="troster-head">
+          <img class="troster-logo" src="${t.logo}" alt="${t.name} logo">
+          <div class="troster-title">
+            <h3>${t.name}</h3>
+            ${owner ? `<div class="troster-owner">👑 Owner · ${owner.name}</div>` : ''}
+          </div>
+          <span class="troster-count">${roster.length}</span>
+        </div>
+        <ul class="troster-list">${roster.map(memberRow).join('')}</ul>
+        <div class="troster-foot">🏐 Volleyball Premier League · Season 1 — UNITY</div>
+      </div>`;
+  }
   function renderRosters() {
     const wrap = document.getElementById('rostersView');
-    let html = '';
+    let html = '<div class="troster-grid">';
     TEAMS.forEach(t => {
-      const roster = players.filter(p => p.team === t.id);
-      html += `
-        <div class="roster-block">
-          <div class="roster-head" style="--rb-primary:${t.primary}; background:${t.primary};">
-            <img src="${t.logo}" alt="${t.name} logo">
-            <h3>${t.name}</h3>
-            <span class="rb-count">${roster.length} player${roster.length === 1 ? '' : 's'}</span>
-          </div>
-          ${roster.length
-            ? `<div class="roster-players">${roster.map(playerCard).join('')}</div>`
-            : `<div class="roster-empty">No players drafted yet.</div>`}
-        </div>`;
+      const roster = players.filter(p => p.team === t.id)
+        .sort((a, b) => (b.owner ? 1 : 0) - (a.owner ? 1 : 0));  // owner first
+      if (roster.length) html += teamRosterCard(t, roster);
     });
+    html += '</div>';
     const unsold = players.filter(p => !p.team);
     if (unsold.length) {
-      html += `
-        <div class="roster-block">
+      html += `<div class="roster-block" style="margin-top:18px;">
           <div class="roster-head" style="background:#6E6E73;">
             <h3 style="font-size:20px;">Still in the pool</h3>
             <span class="rb-count">${unsold.length}</span>
@@ -174,6 +190,9 @@
       document.getElementById('rostersView').style.display = rosters ? 'block' : 'none';
       document.getElementById('poolView').style.display = rosters ? 'none' : 'block';
     }));
+    // teams are final → default to the "By team" view so shared visitors see teams first
+    const rostersBtn = sw.querySelector('[data-view="rosters"]');
+    if (rostersBtn) rostersBtn.click();
   }
 
   /* ---------- Team-card click filters the pool ---------- */

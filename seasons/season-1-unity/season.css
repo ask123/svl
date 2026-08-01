@@ -157,6 +157,14 @@
 }
 .player-card:hover{ transform:translateY(-2px); border-color:var(--line-strong); box-shadow:0 14px 28px -18px rgba(0,0,0,0.25); }
 .player-card .pc-top{ display:flex; align-items:center; gap:12px; }
+/* team owner */
+.player-card.is-owner{ border-color:#E8B23A; box-shadow:0 0 0 1px #E8B23A inset; }
+.pc-owner{
+  position:absolute; top:10px; right:12px; z-index:2;
+  font-size:10.5px; font-weight:800; letter-spacing:.02em;
+  background:linear-gradient(180deg,#F4C752,#E0A020); color:#3a2600;
+  padding:3px 9px; border-radius:100px;
+}
 .pc-avatar-wrap{ position:relative; flex-shrink:0; line-height:0; }
 .pc-upload{
   position:absolute; right:-5px; bottom:-5px;
@@ -233,6 +241,35 @@
   background:var(--pc-team, #eee); color:#fff;
 }
 .player-card .pc-team-tag img{ width:16px; height:16px; border-radius:50%; object-fit:cover; }
+
+/* ---------- Shareable team roster cards ---------- */
+.troster-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; }
+.troster{
+  border-radius:20px; overflow:hidden; background:var(--surface);
+  border:1px solid var(--line); box-shadow:0 18px 40px -26px rgba(0,0,0,0.4);
+}
+.troster-head{
+  display:flex; align-items:center; gap:14px; padding:18px 20px; color:#fff;
+  background:linear-gradient(135deg, var(--tc), color-mix(in srgb, var(--tc) 72%, #000));
+}
+.troster-logo{ width:58px; height:58px; border-radius:12px; background:#fff; padding:3px; object-fit:contain; flex-shrink:0; }
+.troster-title{ min-width:0; }
+.troster-title h3{ font-family:var(--font-title); font-size:23px; text-transform:uppercase; letter-spacing:.02em; line-height:1; }
+.troster-owner{ font-size:12.5px; font-weight:700; color:var(--ta); margin-top:6px; }
+.troster-count{
+  margin-left:auto; flex-shrink:0; width:46px; height:46px; border-radius:12px;
+  background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:22px;
+}
+.troster-list{ list-style:none; margin:0; padding:8px 14px 10px; }
+.tr-player{ display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid var(--line); }
+.tr-player:last-child{ border-bottom:none; }
+.tr-player.is-owner{ background:linear-gradient(90deg, color-mix(in srgb, var(--ta) 22%, transparent), transparent 72%); border-radius:10px; }
+.tr-player .player-avatar{ width:44px; height:44px; border-radius:50%; font-size:15px; }
+.tr-name{ font-weight:700; font-size:15px; letter-spacing:-0.01em; }
+.tr-crown{ font-size:13px; }
+.tr-pos{ margin-left:auto; font-size:11.5px; font-weight:700; color:var(--ink-faint); white-space:nowrap; }
+.troster-foot{ padding:11px 20px 14px; font-size:11px; color:var(--ink-faint); text-align:center; border-top:1px solid var(--line); }
 
 /* ---------- Roster (post-auction) sections ---------- */
 .rosters-section{ padding:24px 0 88px; }
