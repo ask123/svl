@@ -39,8 +39,22 @@
       <span class="tag">League table</span>
       <h2 style="font-size:clamp(24px,3vw,32px);">Standings</h2>
     </div>
+    <div id="tieBanner"></div>
     <div class="table-wrap"><table class="standings" id="standings"></table></div>
     <p class="count-note" id="tableKey" style="margin-top:12px;"></p>
+
+    <details class="tiebreak">
+      <summary>How ranking &amp; tie-breaks work</summary>
+      <ol>
+        <li><b>Points</b> — 3 for a win, 0 for a loss (league matches are a single set).</li>
+        <li><b>Wins</b></li>
+        <li><b>Head-to-head</b> — who won when the level teams played each other.</li>
+        <li><b>Head-to-head point difference</b> — margin in those meetings.</li>
+        <li><b>Overall point difference</b> — points for − points against.</li>
+        <li><b>Points scored</b> — total points for.</li>
+        <li><b>⚠️ Committee decision</b> — if teams are still exactly level on all of the above, the organising committee decides the final order.</li>
+      </ol>
+    </details>
 
     <div class="section-head" style="margin:44px 0 18px;">
       <span class="tag">Knockouts</span>
@@ -84,16 +98,26 @@
     const t = teamById(r.id);
     const cls = r.rank <= q ? 'qualify' : 'eliminated';
     const diff = r.PF - r.PA;
-    return `<tr class="${anyPlayed ? cls : ''}">
+    const tieMark = r.tie ? ' <span class="tie-warn" title="Level on all counts — committee decision">⚠️</span>' : '';
+    return `<tr class="${anyPlayed ? cls : ''} ${r.tie ? 'is-tie' : ''}">
       <td class="rank">${r.rank}</td>
-      <td class="ta-l"><span class="fx-team"><img src="${t.logo}" alt=""><span>${t.name}</span></span></td>
+      <td class="ta-l"><span class="fx-team"><img src="${t.logo}" alt=""><span>${t.name}</span>${tieMark}</span></td>
       <td>${r.P}</td><td>${r.W}</td><td>${r.L}</td>
       <td>${r.PF}</td><td>${r.PA}</td><td>${diff > 0 ? '+' + diff : diff}</td>
       <td class="pts">${r.Pts}</td></tr>`;
   }).join('');
   document.getElementById('standings').innerHTML = head + `<tbody>${body}</tbody>`;
+
+  // dead-heat warning banner
+  const tied = rows.filter(r => r.tie);
+  const tb = document.getElementById('tieBanner');
+  if (tied.length) {
+    const names = tied.map(r => teamById(r.id).name).join(', ');
+    tb.className = 'tie-banner';
+    tb.innerHTML = `⚠️ <b>Level teams:</b> ${names} are tied on points, head-to-head and point difference — the final order (and who makes the semifinals) is a <b>committee decision</b>.`;
+  } else { tb.className = ''; tb.innerHTML = ''; }
   document.getElementById('tableKey').innerHTML = anyPlayed
-    ? `<span class="key-dot qualify"></span> Top ${q} qualify for semifinals &nbsp;·&nbsp; <span class="key-dot eliminated"></span> 5th eliminated &nbsp;·&nbsp; Win = ${SCHEDULE.pointsPerWin} pts. PF/PA = points for/against (single set).`
+    ? `<span class="key-dot qualify"></span> Top ${q} qualify for semifinals &nbsp;·&nbsp; <span class="key-dot eliminated"></span> 5th eliminated &nbsp;·&nbsp; Win = ${SCHEDULE.pointsPerWin} pts. PF/PA = points for/against (single set). &nbsp;·&nbsp; Ties broken by head-to-head, then point difference.`
     : `No matches played yet — the table fills in as results come in. Win = ${SCHEDULE.pointsPerWin} pts.`;
 
   /* ---- knockout bracket ---- */

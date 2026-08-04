@@ -515,6 +515,23 @@ table.standings tr.eliminated{ background:linear-gradient(90deg, rgba(194,34,34,
 .key-dot.qualify{ background:#1F5C3D; }
 .key-dot.eliminated{ background:#C22; }
 
+/* tie / committee-decision */
+.tie-warn{ font-size:13px; }
+table.standings tr.is-tie{ box-shadow:inset 3px 0 0 #E0A020; }
+.tie-banner{
+  background:#FFF3D6; border:1px solid #EAC24A; color:#7a5600;
+  border-radius:12px; padding:12px 16px; font-size:14px; line-height:1.5; margin-bottom:16px;
+}
+.tie-banner b{ color:#5a3f00; }
+.tiebreak{
+  margin-top:16px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:6px 16px;
+}
+.tiebreak summary{ cursor:pointer; font-weight:700; font-size:14px; padding:8px 0; }
+.tiebreak ol{ margin:6px 0 14px; padding-left:22px; }
+.tiebreak li{ font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.tiebreak li b{ color:var(--ink); }
+
 /* schedule admin editor */
 .adm-row{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:12px; }
 .adm-teams{ font-weight:800; font-size:14.5px; margin-bottom:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }

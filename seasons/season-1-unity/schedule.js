@@ -67,9 +67,9 @@ function leagueResult(m) {
 function standings() {
   const row = {};
   TEAMS.forEach(t => (row[t.id] = { id: t.id, P: 0, W: 0, L: 0, PF: 0, PA: 0, Pts: 0 }));
-  leagueMatches().forEach(m => {
+  const played = leagueMatches().filter(m => leagueResult(m));
+  played.forEach(m => {
     const r = leagueResult(m);
-    if (!r) return;
     const H = row[m.home], A = row[m.away];
     H.P++; A.P++;
     H.PF += r.home; H.PA += r.away;
@@ -77,11 +77,53 @@ function standings() {
     if (r.winner === m.home) { H.W++; A.L++; H.Pts += SCHEDULE.pointsPerWin; A.Pts += SCHEDULE.pointsPerLoss; }
     else                     { A.W++; H.L++; A.Pts += SCHEDULE.pointsPerWin; H.Pts += SCHEDULE.pointsPerLoss; }
   });
+
+  // head-to-head record among a set of tied teams (only their mutual matches)
+  function headToHead(ids) {
+    const set = new Set(ids);
+    const h = {};
+    ids.forEach(id => (h[id] = { W: 0, diff: 0, PF: 0 }));
+    played.forEach(m => {
+      if (!set.has(m.home) || !set.has(m.away)) return;
+      const r = leagueResult(m);
+      h[m.home].PF += r.home; h[m.away].PF += r.away;
+      h[m.home].diff += (r.home - r.away); h[m.away].diff += (r.away - r.home);
+      if (r.winner === m.home) h[m.home].W++; else h[m.away].W++;
+    });
+    return h;
+  }
+
   const arr = Object.values(row);
-  arr.sort((a, b) =>
-    b.Pts - a.Pts || b.W - a.W || (b.PF - b.PA) - (a.PF - a.PA) || b.PF - a.PF || a.id.localeCompare(b.id));
-  arr.forEach((r, i) => (r.rank = i + 1));
-  return arr;
+  arr.sort((a, b) => b.Pts - a.Pts);   // group by points first
+  // resolve each group of equal points: head-to-head → h2h diff → overall diff → points for → name
+  const out = [];
+  for (let i = 0; i < arr.length;) {
+    let j = i;
+    while (j < arr.length && arr[j].Pts === arr[i].Pts) j++;
+    const group = arr.slice(i, j);
+    if (group.length > 1) {
+      const h = headToHead(group.map(g => g.id));
+      // sporting keys (highest wins); name is NOT included here — it's the last resort
+      const keys = (x) => [h[x.id].W, h[x.id].diff, h[x.id].PF, x.PF - x.PA, x.PF];
+      group.sort((a, b) => {
+        const ka = keys(a), kb = keys(b);
+        for (let k = 0; k < ka.length; k++) { if (kb[k] !== ka[k]) return kb[k] - ka[k]; }
+        return a.id.localeCompare(b.id);   // last resort → flagged below as a tie
+      });
+      // dead heat: adjacent teams equal on EVERY sporting key → only the name separated them.
+      // Only flag once the league is complete (before then, 0-0 "ties" are meaningless).
+      if (leagueComplete()) {
+        for (let k = 0; k < group.length - 1; k++) {
+          const ka = keys(group[k]), kb = keys(group[k + 1]);
+          if (ka.every((v, idx) => v === kb[idx])) { group[k].tie = true; group[k + 1].tie = true; }
+        }
+      }
+    }
+    out.push(...group);
+    i = j;
+  }
+  out.forEach((r, i) => (r.rank = i + 1));
+  return out;
 }
 
 function leagueComplete() { return leagueMatches().every(m => leagueResult(m)); }
