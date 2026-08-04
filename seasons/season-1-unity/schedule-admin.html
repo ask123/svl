@@ -52,8 +52,11 @@
   function fieldsFor(m, teamsHtml){
     const isKO = m.phase !== 'league';
     const scoreHtml = isKO
-      ? `<div><label>Set scores (e.g. 25-20, 23-25, 15-11)</label><input id="sets-${m.id}" type="text" placeholder="home-away, …"></div>`
-      : `<div><label>Score</label><div class="adm-score"><input id="sh-${m.id}" type="number" min="0" placeholder="H"> – <input id="sa-${m.id}" type="number" min="0" placeholder="A"></div></div>`;
+      ? `<div class="adm-setwrap"><label>Set scores (best of 3 — Home – Away)</label>
+           <div class="adm-sets">
+             ${[1, 2, 3].map(i => `<span class="adm-setrow"><em>S${i}</em><input id="s${i}h-${m.id}" type="number" min="0" placeholder="H"><b>–</b><input id="s${i}a-${m.id}" type="number" min="0" placeholder="A"></span>`).join('')}
+           </div></div>`
+      : `<div><label>Score (1 set — Home – Away)</label><div class="adm-score"><input id="sh-${m.id}" type="number" min="0" placeholder="H"> – <input id="sa-${m.id}" type="number" min="0" placeholder="A"></div></div>`;
     return `<div class="adm-row" data-id="${m.id}">
       <div class="adm-teams"><span class="adm-id">${m.id}</span> ${teamsHtml}</div>
       <div class="adm-fields">
@@ -77,7 +80,7 @@
       const rt = resolveTeams(m);
       html += fieldsFor(m, `${m.label}: ${teamName(rt.home, slotLabel(m.src.home))} <span class="fx-vs">vs</span> ${teamName(rt.away, slotLabel(m.src.away))}`);
     });
-    html += `<div class="adm-savebar"><button class="auc-btn primary" id="saveBtn">💾 Save all changes</button><button class="auc-btn" id="lockBtn">Lock</button><span class="count-note" id="saveNote"></span></div>`;
+    html += `<div class="adm-savebar"><button class="auc-btn primary" id="saveBtn">💾 Save all changes</button><button class="auc-btn danger" id="resetBtn">↺ Reset scores</button><button class="auc-btn" id="lockBtn">Lock</button><span class="count-note" id="saveNote"></span></div>`;
     $('editor').innerHTML = html;
 
     // prefill from current live data (already applied to MATCHES by boot())
@@ -89,10 +92,13 @@
       if (m.phase === 'league') {
         if (m.result && m.result.home != null) { $('sh-'+m.id).value = m.result.home; $('sa-'+m.id).value = m.result.away; }
       } else if (m.result && Array.isArray(m.result.sets)) {
-        $('sets-'+m.id).value = m.result.sets.map(s => `${s[0]}-${s[1]}`).join(', ');
+        m.result.sets.forEach((s, idx) => {
+          if (idx < 3) { const sh = $('s'+(idx+1)+'h-'+m.id), sa = $('s'+(idx+1)+'a-'+m.id); if (sh) sh.value = s[0]; if (sa) sa.value = s[1]; }
+        });
       }
     });
     $('saveBtn').addEventListener('click', save);
+    $('resetBtn').addEventListener('click', resetScores);
     $('lockBtn').addEventListener('click', () => { token=null; sessionStorage.removeItem('vpl-s1-token'); location.reload(); });
   }
 
@@ -106,17 +112,35 @@
         const h=val('sh-'+m.id), a=val('sa-'+m.id);
         if (h!=='' && a!=='') o.result = { home:Number(h), away:Number(a) };
       } else {
-        const raw = val('sets-'+m.id);
-        if (raw) {
-          const sets = raw.split(',').map(s=>s.trim()).filter(Boolean).map(p=>{
-            const [h,a]=p.split('-').map(x=>Number(x.trim())); return [h,a];
-          }).filter(p=>!isNaN(p[0]) && !isNaN(p[1]));
-          if (sets.length) o.result = { sets };
+        const sets = [];
+        for (let i = 1; i <= 3; i++) {
+          const h = val('s'+i+'h-'+m.id), a = val('s'+i+'a-'+m.id);
+          if (h !== '' && a !== '') sets.push([Number(h), Number(a)]);
         }
+        if (sets.length) o.result = { sets };
       }
       if (Object.keys(o).length) overrides[m.id] = o;
     });
     return overrides;
+  }
+
+  // Clear all scores (keeps dates & venues) — handy for testing
+  async function resetScores(){
+    if (!token){ toast('Unlock first'); return; }
+    if (!confirm('Clear ALL scores? Dates & venues are kept. (For testing.)')) return;
+    MATCHES.forEach(m => {
+      if (m.phase === 'league') {
+        if ($('sh-'+m.id)) $('sh-'+m.id).value = '';
+        if ($('sa-'+m.id)) $('sa-'+m.id).value = '';
+      } else {
+        for (let i = 1; i <= 3; i++) {
+          if ($('s'+i+'h-'+m.id)) $('s'+i+'h-'+m.id).value = '';
+          if ($('s'+i+'a-'+m.id)) $('s'+i+'a-'+m.id).value = '';
+        }
+      }
+    });
+    await save();
+    toast('Scores cleared');
   }
 
   async function save(){

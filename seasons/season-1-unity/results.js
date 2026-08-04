@@ -33,7 +33,7 @@ const RESULTS = {
     "team": "ignite-emus"
   },
   "p11": {
-    "team": "young-yaks"
+    "team": "nitro-kangaroos"
   },
   "p12": {
     "team": "young-yaks"
@@ -51,7 +51,7 @@ const RESULTS = {
     "team": "ignite-emus"
   },
   "p17": {
-    "team": "nitro-kangaroos"
+    "team": "young-yaks"
   },
   "p18": {
     "team": "nitro-kangaroos"
