@@ -87,6 +87,8 @@ button{font-family:inherit;}
   display:none; background:none; border:none; cursor:pointer;
   font-size:22px; line-height:1; color:var(--ink); padding:6px 8px; margin-left:6px;
 }
+/* the CTA cloned into the dropdown by nav.js — only shown inside the mobile menu */
+.nav-links a.in-menu{ display:none; }
 
 /* ---------- Hero ---------- */
 .hero{
@@ -756,7 +758,7 @@ input:focus{
   .nav-links.open{ max-height:80vh; overflow:auto; }
   .nav-links a{ padding:15px 24px; font-size:15px; font-weight:600; color:var(--ink); border-top:1px solid var(--line); }
   .nav-links a:first-child{ border-top:none; }
-  .nav-links a.in-menu{ color:#fff; background:var(--spike); margin:8px 16px; border-radius:100px; text-align:center; border:none; }
+  .nav-links a.in-menu{ display:block; color:#fff; background:var(--spike); margin:8px 16px; border-radius:100px; text-align:center; border:none; }
 }
 @media (max-width:520px){
   .wrap{padding:0 20px;}
