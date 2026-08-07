@@ -164,18 +164,55 @@ function saveAssignments(map) {
   localStorage.setItem(STORE_KEY, JSON.stringify(map));
 }
 
-/* Returns a fresh copy of PLAYERS with saved team assignments merged in.
-   Priority: saved localStorage  >  RESULTS (published results.js, optional)  >  base null. */
+/* Returns a fresh copy of PLAYERS with team assignments merged in.
+   Priority for team: live roster reassign (Blobs) > saved localStorage >
+   RESULTS (results.js) > base. Live roster can also add / remove players. */
 function getPlayers() {
   const saved = loadAssignments();
   const published = (typeof RESULTS !== 'undefined' && RESULTS) ? RESULTS : {};
-  return PLAYERS.map(p => {
+  const R = (typeof window !== 'undefined' && window.ROSTER) ? window.ROSTER : {};
+  const reassign = R.reassign || {};
+  const removed = new Set(R.removed || []);
+
+  let list = PLAYERS.map(p => {
     const a = saved[p.id] || published[p.id] || {};
-    return Object.assign({}, p, {
-      team: a.team !== undefined ? a.team : p.team,
-      price: a.price,
+    const team = reassign[p.id] !== undefined ? reassign[p.id]
+      : (a.team !== undefined ? a.team : p.team);
+    return Object.assign({}, p, { team, price: a.price });
+  });
+
+  // players added after the auction (substitutes / late registrations)
+  (R.added || []).forEach(ap => {
+    list.push({
+      id: ap.id, name: ap.name, age: ap.age || '', gender: ap.gender || '',
+      positions: ap.positions || [], fee: ap.fee != null ? ap.fee : null,
+      owner: false, added: true,
+      team: reassign[ap.id] !== undefined ? reassign[ap.id] : (ap.team || null),
     });
   });
+
+  return list.filter(p => !removed.has(p.id));
+}
+
+/* ---- live roster (Netlify Blobs) ---- */
+const ROSTER_ENDPOINT = '/.netlify/functions/roster';
+async function loadRoster() {
+  try {
+    const res = await fetch(ROSTER_ENDPOINT, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const d = await res.json().catch(() => null);
+    const r = d && d.roster ? d.roster : null;
+    if (r) window.ROSTER = r;
+    return r;
+  } catch (e) { return null; }
+}
+async function saveRoster(roster, token) {
+  const res = await fetch(ROSTER_ENDPOINT, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-vpl-token': token },
+    body: JSON.stringify({ roster }),
+  });
+  return res.ok;
 }
 
 function teamById(id) {
@@ -224,6 +261,9 @@ window.avatarHTML = avatarHTML;
 window.isSpiker = isSpiker;
 window.basePrice = basePrice;
 window.PHOTO_ENDPOINT = PHOTO_ENDPOINT;
+window.loadRoster = loadRoster;
+window.saveRoster = saveRoster;
+window.ROSTER_ENDPOINT = ROSTER_ENDPOINT;
 window.loadAssignments = loadAssignments;
 window.saveAssignments = saveAssignments;
 window.STORE_KEY = STORE_KEY;

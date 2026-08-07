@@ -82,6 +82,11 @@ button{font-family:inherit;}
   transition:transform .2s var(--ease), background .2s var(--ease);
 }
 .nav-cta:hover{background:var(--spike); transform:translateY(-1px);}
+/* mobile menu toggle (hamburger) — injected by nav.js, hidden on desktop */
+.nav-toggle{
+  display:none; background:none; border:none; cursor:pointer;
+  font-size:22px; line-height:1; color:var(--ink); padding:6px 8px; margin-left:6px;
+}
 
 /* ---------- Hero ---------- */
 .hero{
@@ -735,7 +740,23 @@ input:focus{
   .prize-grid{grid-template-columns:1fr;}
   .sched-band{grid-template-columns:1fr;}
   .tl-item{grid-template-columns:1fr;}
-  .nav-links{display:none;}
+
+  /* ---- mobile navigation (hamburger dropdown) ---- */
+  .nav-toggle{ display:inline-flex; }
+  .nav-mark{ font-size:14px; min-width:0; }
+  .nav-mark .season-tag{ display:none; }
+  .nav .wrap > .nav-cta{ display:none; }            /* moved into the dropdown by nav.js */
+  .nav-links{
+    display:flex; flex-direction:column; align-items:stretch; gap:0;
+    position:absolute; top:100%; left:0; right:0;
+    background:var(--surface); border-top:1px solid var(--line);
+    box-shadow:0 16px 30px -14px rgba(0,0,0,0.28);
+    max-height:0; overflow:hidden; transition:max-height .28s var(--ease);
+  }
+  .nav-links.open{ max-height:80vh; overflow:auto; }
+  .nav-links a{ padding:15px 24px; font-size:15px; font-weight:600; color:var(--ink); border-top:1px solid var(--line); }
+  .nav-links a:first-child{ border-top:none; }
+  .nav-links a.in-menu{ color:#fff; background:var(--spike); margin:8px 16px; border-radius:100px; text-align:center; border:none; }
 }
 @media (max-width:520px){
   .wrap{padding:0 20px;}

@@ -1,7 +1,9 @@
 /* ============================================================
    VPL Season 1 · UNITY — public players & teams page renderer
    ============================================================ */
-(function () {
+(async function () {
+  // pull any live roster edits (swaps / added / removed) before rendering
+  if (typeof loadRoster === 'function') { try { await loadRoster(); } catch (e) {} }
   const players = getPlayers();
   const anyAssigned = players.some(p => p.team);
 

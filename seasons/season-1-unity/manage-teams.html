@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Manage Teams</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+<style>
+  .mt-teams{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+  .mt-team{ border:1px solid var(--line); border-radius:14px; background:var(--surface); overflow:hidden; }
+  .mt-head{ display:flex; align-items:center; gap:10px; padding:12px 14px; color:#fff; }
+  .mt-head img{ width:34px; height:34px; border-radius:8px; background:#fff; padding:2px; object-fit:contain; }
+  .mt-head .mt-name{ font-family:var(--font-title); font-size:17px; text-transform:uppercase; letter-spacing:.02em; }
+  .mt-head .mt-count{ margin-left:auto; font-weight:800; font-size:13px; background:rgba(255,255,255,.2); padding:3px 10px; border-radius:100px; }
+  .mt-body{ padding:8px 12px 12px; }
+  .mt-row{ display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px dashed var(--line); }
+  .mt-row:last-child{ border-bottom:none; }
+  .mt-pname{ font-weight:700; font-size:13.5px; flex:1; min-width:0; }
+  .mt-row select{ padding:5px 8px; border:1px solid var(--line-strong); border-radius:7px; font-size:12px; max-width:130px; }
+  .mt-x{ border:none; background:none; color:var(--ink-faint); font-weight:800; cursor:pointer; font-size:15px; }
+  .mt-x:hover{ color:#C22; }
+  .mt-add{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:16px; }
+  .mt-add h3{ font-family:var(--font-display); font-weight:800; font-size:16px; margin-bottom:12px; }
+  .mt-add .fields{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .mt-add label{ font-size:11px; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:3px; }
+  .mt-add input, .mt-add select{ width:100%; padding:8px 10px; border:1px solid var(--line-strong); border-radius:8px; font-size:13px; font-family:inherit; }
+  .mt-pos{ display:flex; flex-wrap:wrap; gap:6px; }
+  .mt-pos label{ font-weight:600; display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--paper); border:1px solid var(--line-strong); padding:5px 9px; border-radius:100px; cursor:pointer; margin:0; }
+  .mt-removed{ margin-top:14px; font-size:13px; color:var(--ink-soft); }
+  .mt-removed .chip{ display:inline-flex; align-items:center; gap:6px; background:#fbeaea; color:#8a1f1f; border-radius:100px; padding:4px 10px; margin:3px 4px 0 0; font-weight:700; font-size:12px; }
+  .mt-removed .chip button{ border:none; background:none; cursor:pointer; color:#8a1f1f; font-weight:800; }
+</style>
+</head>
+<body>
+
+<div class="auc-wrap">
+  <div class="auc-top">
+    <div>
+      <h1>Season 1 · Manage Teams</h1>
+      <div class="sub">Swap players between teams, remove someone who's unavailable, or add a new registration. Saves live to the site — no code changes.</div>
+    </div>
+    <div class="auc-actions">
+      <a class="auc-btn" href="index.html">View teams →</a>
+    </div>
+  </div>
+
+  <div class="mode-bar viewing" id="modeBar">
+    <span class="mode-tag">🔒 Locked — enter the organiser password to edit</span>
+    <button class="auc-btn primary" id="unlockBtn">🔓 Unlock</button>
+  </div>
+
+  <div id="editor" style="display:none;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="players.js"></script>
+<script>
+(function () {
+  let token = sessionStorage.getItem('vpl-s1-token') || null;
+  let R = { reassign: {}, added: [], removed: [] };
+  const $ = (id) => document.getElementById(id);
+  const POS = ['Setter', 'Outside Hitter', 'Opposite / Right Side', 'Middle Blocker', 'Libero', 'Defensive Specialist'];
+  function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200); }
+
+  async function authenticate(pw){
+    try{
+      const res=await fetch('/.netlify/functions/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+      const d=await res.json().catch(()=>({}));
+      return (res.ok && d.ok===true) ? (d.token||'') : null;
+    }catch(e){ return null; }
+  }
+  function apply(){ window.ROSTER = R; }              // so getPlayers() reflects edits live
+  function nextId(){
+    const nums = PLAYERS.map(p=>parseInt(p.id.slice(1),10))
+      .concat(R.added.map(a=>parseInt(a.id.slice(1),10))).filter(n=>!isNaN(n));
+    return 'p'+String(Math.max(0,...nums)+1).padStart(2,'0');
+  }
+
+  function render(){
+    apply();
+    const players = getPlayers();
+    let html = '<div class="mt-teams">';
+    TEAMS.forEach(t => {
+      const roster = players.filter(p=>p.team===t.id).sort((a,b)=>(b.owner?1:0)-(a.owner?1:0));
+      html += `<div class="mt-team">
+        <div class="mt-head" style="background:${t.primary}">
+          <img src="${t.logo}" alt=""><span class="mt-name">${t.name}</span>
+          <span class="mt-count">${roster.length}</span>
+        </div>
+        <div class="mt-body">
+          ${roster.map(p=>`
+            <div class="mt-row">
+              <span class="mt-pname">${p.owner?'👑 ':''}${p.name}${p.added?' <span style="color:var(--spike);font-size:11px;">NEW</span>':''}</span>
+              <select data-move="${p.id}">
+                <option value="" ${!p.team?'selected':''}>— Unassigned —</option>
+                ${TEAMS.map(x=>`<option value="${x.id}" ${p.team===x.id?'selected':''}>${x.name}</option>`).join('')}
+              </select>
+              <button class="mt-x" data-remove="${p.id}" title="Remove (unavailable)">✕</button>
+            </div>`).join('') || '<div style="color:var(--ink-faint);font-size:13px;padding:6px 0;">No players.</div>'}
+        </div>
+      </div>`;
+    });
+    const pool = players.filter(p => !p.team);
+    if (pool.length) {
+      html += `<div class="mt-team">
+        <div class="mt-head" style="background:#6E6E73"><span class="mt-name">Unassigned · pool</span><span class="mt-count">${pool.length}</span></div>
+        <div class="mt-body">
+          ${pool.map(p=>`
+            <div class="mt-row">
+              <span class="mt-pname">${p.name}${p.added?' <span style="color:var(--spike);font-size:11px;">NEW</span>':''}</span>
+              <select data-move="${p.id}">
+                <option value="" selected>— Unassigned —</option>
+                ${TEAMS.map(x=>`<option value="${x.id}">${x.name}</option>`).join('')}
+              </select>
+              <button class="mt-x" data-remove="${p.id}" title="Remove (unavailable)">✕</button>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+
+    // removed players (can restore)
+    if (R.removed.length) {
+      html += `<div class="mt-removed"><b>Removed (unavailable):</b> ` +
+        R.removed.map(id=>{ const p=PLAYERS.find(x=>x.id===id)||R.added.find(x=>x.id===id)||{name:id};
+          return `<span class="chip">${p.name}<button data-restore="${id}" title="Restore">↩</button></span>`; }).join('') + `</div>`;
+    }
+
+    // add-player form
+    html += `<div class="mt-add">
+      <h3>➕ Add a player (new registration / substitute)</h3>
+      <div class="fields">
+        <div><label>Full name</label><input id="ap-name" type="text" placeholder="First Last"></div>
+        <div><label>Age</label><select id="ap-age"><option>10-20</option><option>20-30</option><option selected>30-40</option><option>40+</option></select></div>
+        <div><label>Gender</label><select id="ap-gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div><label>Team</label><select id="ap-team"><option value="">— Unassigned (pool) —</option>${TEAMS.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select></div>
+      </div>
+      <div style="margin-top:10px;"><label style="font-size:11px;font-weight:700;color:var(--ink-soft);">Positions</label>
+        <div class="mt-pos">${POS.map(p=>`<label><input type="checkbox" class="ap-pos" value="${p}"> ${POSITIONS[p]||p}</label>`).join('')}</div>
+      </div>
+      <button class="auc-btn primary" id="addBtn" style="margin-top:12px;">Add player</button>
+    </div>`;
+
+    // save bar
+    html += `<div class="adm-savebar"><button class="auc-btn primary" id="saveBtn">💾 Save &amp; publish</button><button class="auc-btn danger" id="resetBtn">↺ Reset all edits</button><button class="auc-btn" id="lockBtn">Lock</button><span class="count-note" id="saveNote"></span></div>`;
+
+    $('editor').innerHTML = html;
+
+    $('editor').querySelectorAll('[data-move]').forEach(sel => sel.addEventListener('change', e=>{
+      const id=sel.dataset.move, team=e.target.value;
+      const ap=R.added.find(a=>a.id===id);
+      if(ap) ap.team=team; else R.reassign[id]=team;
+      // if it was an added player already having reassign, keep consistent
+      if(!ap) R.reassign[id]=team;
+      render();
+    }));
+    $('editor').querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', ()=>{
+      const id=b.dataset.remove;
+      const apIdx=R.added.findIndex(a=>a.id===id);
+      if(apIdx>=0){ R.added.splice(apIdx,1); delete R.reassign[id]; }   // drop added player entirely
+      else if(!R.removed.includes(id)) R.removed.push(id);
+      render();
+    }));
+    $('editor').querySelectorAll('[data-restore]').forEach(b => b.addEventListener('click', ()=>{
+      R.removed = R.removed.filter(x=>x!==b.dataset.restore); render();
+    }));
+    $('addBtn').addEventListener('click', ()=>{
+      const name=$('ap-name').value.trim();
+      if(!name){ toast('Enter a name'); return; }
+      const positions=Array.from(document.querySelectorAll('.ap-pos:checked')).map(c=>c.value);
+      if(!positions.length){ toast('Pick at least one position'); return; }
+      R.added.push({ id:nextId(), name, age:$('ap-age').value, gender:$('ap-gender').value, positions, team:$('ap-team').value });
+      toast(name+' added'); render();
+    });
+    $('saveBtn').addEventListener('click', save);
+    $('resetBtn').addEventListener('click', ()=>{ if(confirm('Discard ALL roster edits and revert to the auction result?')){ R={reassign:{},added:[],removed:[]}; render(); toast('Reset — click Save to publish'); }});
+    $('lockBtn').addEventListener('click', ()=>{ token=null; sessionStorage.removeItem('vpl-s1-token'); location.reload(); });
+  }
+
+  async function save(){
+    if(!token){ toast('Unlock first'); return; }
+    $('saveNote').textContent='Saving…';
+    const ok = await saveRoster(R, token);
+    if(ok){ toast('Saved ✓ — live on the site'); $('saveNote').textContent='Saved ✓'; }
+    else { toast('Save failed (session expired? unlock again, or deploy on Netlify)'); $('saveNote').textContent='Save failed'; }
+  }
+
+  async function unlock(){
+    const pw = prompt('Organiser password:');
+    if(pw==null) return;
+    toast('Checking…');
+    const t = await authenticate(pw);
+    if(t!==null){
+      token=t; sessionStorage.setItem('vpl-s1-token', t);
+      $('modeBar').className='mode-bar editing';
+      $('modeBar').innerHTML='<span class="mode-tag">✏️ Editing — changes go live when you click Save</span>';
+      $('editor').style.display='block';
+      render();
+    } else { toast('Incorrect password (or run on the deployed Netlify site)'); }
+  }
+
+  $('unlockBtn').addEventListener('click', unlock);
+
+  // load current live roster first so edits start from what's published
+  (async () => {
+    if (typeof loadRoster==='function') { const r=await loadRoster(); if(r) R={ reassign:r.reassign||{}, added:r.added||[], removed:r.removed||[] }; }
+    if (token) { $('modeBar').className='mode-bar editing'; $('modeBar').innerHTML='<span class="mode-tag">✏️ Editing — changes go live when you click Save</span>'; $('editor').style.display='block'; render(); }
+  })();
+})();
+</script>
+</body>
+</html>
