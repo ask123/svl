@@ -183,27 +183,89 @@ function byeTeam(round) {
    The static fields above are defaults; live day/date/time/venue/result come from
    the schedule function and are layered on top so everyone sees updates. */
 const SCHEDULE_ENDPOINT = '/.netlify/functions/schedule';
-MATCHES.forEach(m => (m._def = {
-  day: m.day || '', date: m.date || '', time: m.time || '', venue: m.venue || '',
-  result: m.result != null ? m.result : null,
-}));
+// Default "order" = the slot a match plays in. League defaults to its round
+// (2 matches per round = the 2 courts); knockouts sit after. Organisers can
+// override this per-match from the schedule admin to arrange the running order.
+const _koDefaultOrder = { SF1: 11, SF2: 11, F: 12 };
+const _koDefaultCourt = { SF1: 1, SF2: 2, F: 1 };
+// Default running order for the single day (2 courts). Fair-play optimised so no
+// team plays more than 4 slots in a row, with:
+//   Slot 1  rests Nitro Kangaroos
+//   Slot 9  = Nitro Kangaroos v Thunder Tigers (Court 1)
+//   Slot 10 = Nitro Kangaroos v Young Yaks     (Court 1)
+// [order, court] per league match id. Organisers can still override in the admin.
+const DEFAULT_SLOTS = {
+  L05: [1, 1], L06: [1, 2],    // Slot 1 · rests Nitro Kangaroos
+  L03: [2, 1], L04: [2, 2],
+  L09: [3, 1], L10: [3, 2],
+  L07: [4, 1], L08: [4, 2],
+  L01: [5, 1], L02: [5, 2],
+  L15: [6, 1], L16: [6, 2],
+  L13: [7, 1], L14: [7, 2],
+  L19: [8, 1], L20: [8, 2],
+  L18: [9, 1], L17: [9, 2],    // Slot 9 · Court 1 = Nitro v Thunder
+  L11: [10, 1], L12: [10, 2],  // Slot 10 · Court 1 = Nitro v Young Yaks
+};
+function _defaultCourt(m) {
+  if (DEFAULT_SLOTS[m.id]) return DEFAULT_SLOTS[m.id][1];
+  if (m.phase !== 'league') return _koDefaultCourt[m.id] || 1;
+  const n = parseInt(String(m.id).replace(/\D/g, ''), 10);
+  return (n % 2 === 1) ? 1 : 2;
+}
+function _defaultOrder(m) {
+  if (DEFAULT_SLOTS[m.id]) return DEFAULT_SLOTS[m.id][0];
+  return (m.phase === 'league' ? m.round : (_koDefaultOrder[m.id] || 99));
+}
+// Single-day event at one venue (court booked 1–6 PM). Rough slots:
+//   League 1:00–4:00 PM (10 slots ≈ 18 min), Semifinals 4:00–5:00, Grand Final 5:00–6:00.
+const DEFAULT_VENUE = 'Hawkesbury Indoor Stadium';
+const SLOT_TIMES = {
+  1: '1:00 PM', 2: '1:18 PM', 3: '1:36 PM', 4: '1:54 PM', 5: '2:12 PM',
+  6: '2:30 PM', 7: '2:48 PM', 8: '3:06 PM', 9: '3:24 PM', 10: '3:42 PM',
+  11: '4:00 PM',   // Semifinals (best of 3) · 4–5 PM
+  12: '5:00 PM',   // Grand Final (best of 3) · 5–6 PM
+};
+MATCHES.forEach(m => {
+  const ord = (m.order != null ? m.order : _defaultOrder(m));
+  m._def = {
+    day: m.day || '', date: m.date || '',
+    time: m.time || '',          // explicit file time only; slot time is applied by order
+    venue: m.venue || DEFAULT_VENUE,
+    result: m.result != null ? m.result : null,
+    order: ord,
+    court: (m.court != null ? m.court : _defaultCourt(m)),
+  };
+  m.order = m._def.order;   // ensure defined even before live overrides load
+  m.court = m._def.court;
+  m.time = m._def.time || (SLOT_TIMES[m.order] || '');   // time tracks the slot
+});
 
 function applyOverrides(ov) {
   MATCHES.forEach(m => {
-    // reset to file defaults, then layer the live override (if any)
-    m.day = m._def.day; m.date = m._def.date; m.time = m._def.time;
-    m.venue = m._def.venue; m.result = m._def.result;
     const o = ov && ov[m.id];
-    if (o) {
-      if (o.day != null) m.day = o.day;
-      if (o.date != null) m.date = o.date;
-      if (o.time != null) m.time = o.time;
-      if (o.venue != null) m.venue = o.venue;
-      if (o.result !== undefined) m.result = o.result;
-    }
+    m.order = (o && o.order != null) ? Number(o.order) : m._def.order;
+    m.court = (o && o.court != null) ? Number(o.court) : m._def.court;
+    m.day   = (o && o.day   != null) ? o.day   : m._def.day;
+    m.date  = (o && o.date  != null) ? o.date  : m._def.date;
+    m.venue = (o && o.venue != null) ? o.venue : m._def.venue;
+    // time: an explicit override wins; otherwise it tracks the (possibly reordered) slot
+    m.time  = (o && o.time  != null) ? o.time  : (m._def.time || SLOT_TIMES[m.order] || '');
+    m.result = (o && o.result !== undefined) ? o.result : m._def.result;
   });
 }
+// Local test mode: on localhost / file:// there is no Netlify auth/functions,
+// so the admin password is bypassed and overrides are read/written to this
+// browser's localStorage. On the deployed site IS_LOCAL is false → password +
+// Blobs as normal. (Keeps production admin protected even if this is pushed.)
+const IS_LOCAL = (typeof location !== 'undefined') &&
+  (location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(location.hostname));
+const SCHEDULE_LS_KEY = 'vpl-s1-schedule-overrides';
+
 async function loadOverrides() {
+  if (IS_LOCAL) {
+    try { const raw = localStorage.getItem(SCHEDULE_LS_KEY); return raw ? JSON.parse(raw) : {}; }
+    catch (e) { return {}; }
+  }
   try {
     const res = await fetch(SCHEDULE_ENDPOINT, { cache: 'no-store' });
     if (!res.ok) return null;
@@ -218,6 +280,10 @@ async function refreshSchedule() {
   return ov != null;
 }
 async function saveOverrides(overrides, token) {
+  if (IS_LOCAL) {
+    try { localStorage.setItem(SCHEDULE_LS_KEY, JSON.stringify(overrides)); return true; }
+    catch (e) { return false; }
+  }
   const res = await fetch(SCHEDULE_ENDPOINT, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'x-vpl-token': token },

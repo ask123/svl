@@ -3,43 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volleyball Premier League</title>
-<meta name="description" content="Volleyball Premier League is a friendly auction-format tournament with new teams, new strategies, and one champion.">
+<title>Volleyball Premier League · Season 1 — UNITY</title>
+<meta name="description" content="Volleyball Premier League — Season 1 (UNITY) is live. Five teams, one player pool, one champion. Follow the teams, schedule, standings and the auction.">
 <link rel="stylesheet" href="styles.css">
+<style>
+  /* Home quick-link cards (root page uses styles.css only) */
+  a.qlink{ text-decoration:none; color:inherit; display:block; }
+  a.qlink .ri{ font-size:20px; }
+  a.qlink .ql-go{ display:inline-block; margin-top:12px; font-weight:800; color:var(--spike); }
+  .newbie-band{ display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .newbie-band .nb-go{ white-space:nowrap; }
+</style>
 </head>
 <body>
 
 <nav class="nav">
   <div class="wrap">
-    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League</a>
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
     <div class="nav-links">
-      <a href="seasons/season-1-unity/index.html">Season 1 · Teams</a>
-      <a href="#concept">Concept</a>
-      <a href="#how-it-works">How it works</a>
-      <a href="#rules">Match rules</a>
-      <a href="#prizes">Registration</a>
-      <a href="#schedule">Schedule</a>
+      <a href="seasons/season-1-unity/index.html">Players &amp; Teams</a>
+      <a href="seasons/season-1-unity/schedule.html">Schedule</a>
+      <a href="seasons/season-1-unity/results.html">Results</a>
+      <a href="seasons/season-1-unity/tournament.html">Rules</a>
+      <a href="about.html">How it works</a>
     </div>
-    <a href="register.html" class="nav-cta">Register now</a>
+    <a href="seasons/season-1-unity/results.html" class="nav-cta">Standings</a>
   </div>
 </nav>
 
 <header class="hero">
   <div class="wrap">
     <div>
-      <span class="eyebrow">Premier Tournament · Live Auction Format</span>
-      <h1>Volleyball Premier League</h1>
-      <p class="lead">Volleyball Premier League is a unique and exciting tournament where players from our regular volleyball teams are selected through a live auction to form brand-new teams. This format encourages teamwork, sportsmanship, and healthy competition.</p>
+      <span class="eyebrow">Volleyball Premier League · Season 1</span>
+      <h1>Season 1 · <em>UNITY</em></h1>
+      <p class="lead">The season is live. Five teams, one player pool, and an auction that decided who plays for whom — now follow your team through the league, the semis and the Grand Final.</p>
       <div class="hero-ctas">
-        <a href="register.html" class="btn btn-primary">Register to play</a>
-        <a href="#how-it-works" class="btn btn-ghost">See how it works</a>
-      </div>
-      <div class="hero-contact">
-        <span class="hero-contact-label">Questions? Message the organisers:</span>
-        <div class="hero-ctas" style="margin-top:0;">
-          <a href="https://wa.me/61458808512?text=Hi%20Sravan%2C%20I%20have%20a%20question%20about%20Volleyball%20Premier%20League%20registration." class="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">💬 WhatsApp Sravan</a>
-          <a href="https://wa.me/61422024444?text=Hi%20Raghu%2C%20I%20have%20a%20question%20about%20Volleyball%20Premier%20League%20registration." class="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">💬 WhatsApp Raghu</a>
-        </div>
+        <a href="seasons/season-1-unity/index.html" class="btn btn-primary">Players &amp; teams</a>
+        <a href="seasons/season-1-unity/results.html" class="btn btn-ghost">Standings</a>
+        <a href="seasons/season-1-unity/schedule.html" class="btn btn-ghost">Schedule</a>
       </div>
     </div>
 
@@ -62,7 +63,7 @@
       </div>
       <div class="s1-sub">🦅 Ultra Eagles · 🦘 Nitro Kangaroos · 🪶 Ignite Emus · 🐅 Thunder Tigers · 🐂 Young Yaks</div>
 
-      <p class="s1-title">Five teams. One player pool. The auction decides who plays for whom.</p>
+      <p class="s1-title">Five teams. One player pool. The auction decided who plays for whom.</p>
 
       <div class="s1-foot">
         <span class="s1-stat"><b id="s1PlayerCount">38</b> players registered</span>
@@ -78,57 +79,21 @@
       <div class="stat"><div class="num">5</div><div class="lbl">Teams</div></div>
       <div class="stat"><div class="num">8</div><div class="lbl">Players / team</div></div>
       <div class="stat"><div class="num">20</div><div class="lbl">League matches</div></div>
-      <div class="stat"><div class="num">$30 / $50</div><div class="lbl">Registration options</div></div>
-      <div class="stat"><div class="num">Top 4</div><div class="lbl">Advance to semifinals</div></div>
-      <div class="stat"><div class="num">7–9</div><div class="lbl">PM, weekdays</div></div>
+      <div class="stat"><div class="num">Top 4</div><div class="lbl">Into the semifinals</div></div>
+      <div class="stat"><div class="num">1</div><div class="lbl">Champion</div></div>
+      <div class="stat"><div class="num">1 day</div><div class="lbl">Sat 22 Aug · 1–6 PM</div></div>
     </div>
   </div>
 </section>
 
-<section class="section flow-section" id="how-flow" style="padding-bottom:24px;">
-  <div class="wrap">
-    <div class="section-head reveal" style="max-width:680px; margin-bottom:34px;">
-      <span class="tag">How it works</span>
-      <h2>One pool. A live auction. Five new teams.</h2>
-      <p>Players register into a single pool, five owners draft brand-new teams at a live auction, then it's a full league and finals.</p>
-    </div>
-    <ol class="flow reveal">
-      <li class="flow-step">
-        <span class="flow-badge">1</span><div class="flow-ic">🏐</div>
-        <h4>One player pool</h4><p>Everyone who registers enters a single pool.</p>
-        <a href="register.html">Register →</a>
-      </li>
-      <li class="flow-step">
-        <span class="flow-badge">2</span><div class="flow-ic">🔨</div>
-        <h4>Live auction</h4><p>Five owners bid from a $100k purse to build squads.</p>
-        <a href="seasons/season-1-unity/auction.html">Watch →</a>
-      </li>
-      <li class="flow-step">
-        <span class="flow-badge">3</span><div class="flow-ic">🛡️</div>
-        <h4>Five new teams</h4><p>Season 1's UNITY squads take shape.</p>
-        <a href="seasons/season-1-unity/index.html#teams">Teams →</a>
-      </li>
-      <li class="flow-step">
-        <span class="flow-badge">4</span><div class="flow-ic">📅</div>
-        <h4>The league</h4><p>Double round robin — 8 matches per team.</p>
-        <a href="seasons/season-1-unity/schedule.html">Fixtures →</a>
-      </li>
-      <li class="flow-step">
-        <span class="flow-badge">5</span><div class="flow-ic">🏆</div>
-        <h4>Semis &amp; Final</h4><p>Top 4 to the semifinals, then the Grand Final.</p>
-        <a href="seasons/season-1-unity/results.html">Standings →</a>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<section class="section" id="season1" style="padding-top:0;">
+<!-- Meet the squads -->
+<section class="section" id="season1" style="padding-bottom:24px;">
   <div class="wrap">
     <div class="sched-band reveal" style="background:linear-gradient(160deg,#0B1B3F,#10254f); align-items:center;">
       <div>
         <span class="tag" style="color:#FFB088; letter-spacing:.06em; text-transform:uppercase; font-weight:700; font-size:12.5px;">Season 1 · Theme: UNITY 🤝</span>
-        <h3 style="margin-top:8px;">The teams are here — meet the Season 1 squads</h3>
-        <p>🦅 Ultra Eagles · 🦘 Nitro Kangaroos · 🪶 Ignite Emus · 🐅 Thunder Tigers · 🐂 Young Yaks. Browse every registered player and their skills — team rosters are revealed on auction night.</p>
+        <h3 style="margin-top:8px;">Meet the Season 1 squads</h3>
+        <p>🦅 Ultra Eagles · 🦘 Nitro Kangaroos · 🪶 Ignite Emus · 🐅 Thunder Tigers · 🐂 Young Yaks. Browse every player, their skills and the final team rosters from auction night.</p>
         <div class="hero-ctas" style="margin-top:18px;">
           <a href="seasons/season-1-unity/index.html" class="btn btn-primary">See players &amp; teams</a>
         </div>
@@ -140,180 +105,65 @@
   </div>
 </section>
 
-<section class="section" id="concept">
-  <div class="wrap">
-    <div class="concept-grid">
-      <div class="concept-visual reveal">
-        <div class="net-lines"></div>
-        <div class="cv-inner">
-          <div class="merge-row">
-            <span class="chip">Your regular team</span>
-            <span class="merge-arrow">＋</span>
-            <span class="chip">4 other regular teams</span>
-          </div>
-          <div class="merge-row">
-            <span class="merge-arrow">↓ auction ↓</span>
-          </div>
-          <div class="merge-row">
-            <span class="chip">5 new teams</span>
-          </div>
-          <h3>Same players. New rosters.</h3>
-          <p>Every registered player goes into one pool. Team captains build their squads through the auction — no one plays with their usual lineup.</p>
-        </div>
-      </div>
-      <div class="concept-copy reveal">
-        <span class="section-head tag">The idea</span>
-        <h2 style="font-family:var(--font-display); font-weight:800; font-size:28px; letter-spacing:-0.02em; margin-bottom:18px;">What makes this league unique</h2>
-        <p>Volleyball Premier League is a unique and exciting tournament where players from our regular volleyball teams are selected through a live auction to form brand-new teams. This format encourages teamwork, sportsmanship, and healthy competition by bringing together players who don't usually play on the same side.</p>
-        <p>The league follows a double round-robin format, with every team playing each opponent twice during the league stage. Teams earn points based on match results, and at the end of the league stage, the top four teams qualify for the semifinals while the fifth-placed team is eliminated.</p>
-        <p>The tournament concludes with the semifinals and grand final to determine the Auction League Champions.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section-alt" id="how-it-works">
+<!-- Quick links into the season -->
+<section class="section" style="padding-top:24px;">
   <div class="wrap">
     <div class="section-head reveal">
-      <span class="tag">Season path</span>
-      <h2>From sign-up to final whistle</h2>
-      <p>Five stages, in order. Nothing about the schedule is decided until the teams are.</p>
-    </div>
-    <div class="timeline reveal">
-      <div class="tl-item">
-        <div class="tl-when">Step 1</div>
-        <div class="tl-body">
-          <h4>Registration</h4>
-          <p>Players register individually and choose their registration option: $50 (includes indoor court booking and winner/runner prize money) or $30 (indoor court booking only).</p>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-when">Step 2</div>
-        <div class="tl-body">
-          <h4>Auction night</h4>
-          <p>Five team captains draft their rosters from the full player pool. Each team ends up with 8 players.</p>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-when">Step 3</div>
-        <div class="tl-body">
-          <h4>Double round robin</h4>
-          <p>Each team plays every other team twice during league stage matches.</p>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-when">Step 4</div>
-        <div class="tl-body">
-          <h4>League standings</h4>
-          <p>After league stage points are finalized, top four teams qualify for semifinals and the fifth-placed team is eliminated.</p>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-when">Step 5</div>
-        <div class="tl-body">
-          <h4>Semifinals &amp; grand final</h4>
-          <p>The tournament ends with semifinals and a grand final to crown the Auction League Champions.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="rules">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <span class="tag">On court</span>
-      <h2>How matches are actually played</h2>
-      <p>The format is built to guarantee everyone gets real game time — and to keep matches moving.</p>
+      <span class="tag">Follow the season</span>
+      <h2>Jump straight in</h2>
     </div>
     <div class="rules-grid reveal">
-      <div class="rule-card">
-        <div class="ri">25</div>
-        <h4>Scoring format</h4>
-        <p>Every league match is a single set, played to 25 points.</p>
-        <p>If the set reaches 24–24 (deuce), play continues — but the deuce win-by-2 rule is capped: whichever team reaches <strong>30 points first wins outright</strong>, regardless of margin.</p>
-      </div>
-      <div class="rule-card">
-        <div class="ri">8</div>
-        <h4>Squad size &amp; game time</h4>
-        <p>Each team has 8 registered players for the season.</p>
-        <p>Every player on the roster must play a <strong>minimum of 3 matches</strong> across the season — captains have to rotate the squad, not just run the same six.</p>
-        <span class="flag">Fair playing-time rule</span>
-      </div>
-      <div class="rule-card">
-        <div class="ri">6+2</div>
-        <h4>Match-day squad</h4>
-        <p>Before each match, the team captain names a starting six and two substitutes from the 8-player roster.</p>
-        <p>Only those 8 are eligible to play that match.</p>
-      </div>
-      <div class="rule-card">
-        <div class="ri">!</div>
-        <h4>No early substitutions</h4>
-        <p>To make sure everyone gets a fair chance, the captain's <strong>starting top 6 must begin the match and stay on court for the first 10 combined points</strong> of the set.</p>
-        <p>No substitution is allowed during those first 10 points (including for injury). If a player cannot continue in that period, the team continues short-handed. Substitutions are allowed only after the set passes 10 combined points.</p>
-        <span class="flag warn">Applies even in case of injury</span>
-      </div>
+      <a class="rule-card qlink" href="seasons/season-1-unity/schedule.html">
+        <div class="ri">📅</div>
+        <h4>Schedule &amp; fixtures</h4>
+        <p>Double round robin — see when each team plays.</p>
+        <span class="ql-go">Fixtures →</span>
+      </a>
+      <a class="rule-card qlink" href="seasons/season-1-unity/results.html">
+        <div class="ri">🏆</div>
+        <h4>Standings &amp; results</h4>
+        <p>Follow the table and the road to the Grand Final.</p>
+        <span class="ql-go">Standings →</span>
+      </a>
+      <a class="rule-card qlink" href="seasons/season-1-unity/auction.html">
+        <div class="ri">🔨</div>
+        <h4>The auction</h4>
+        <p>How the five squads were built from one player pool.</p>
+        <span class="ql-go">Watch →</span>
+      </a>
+      <a class="rule-card qlink" href="seasons/season-1-unity/tournament.html">
+        <div class="ri">📋</div>
+        <h4>Tournament rules</h4>
+        <p>Scoring, serving and the fair-play rotation.</p>
+        <span class="ql-go">Rules →</span>
+      </a>
     </div>
   </div>
 </section>
 
-<section class="section section-alt" id="prizes">
+<!-- New here? -->
+<section class="section section-alt">
   <div class="wrap">
-    <div class="section-head reveal">
-      <span class="tag">Registration options</span>
-      <h2>Choose your registration option</h2>
-    </div>
-    <div class="prize-grid reveal">
-      <div class="prize-card gold">
-        <div class="pk">Option 1</div>
-        <div class="amt">$50</div>
-        <div class="sub">Includes indoor court booking for all matches and winner/runner prize money</div>
-      </div>
-      <div class="prize-card">
-        <div class="pk">Option 2</div>
-        <div class="amt">$30</div>
-        <div class="sub">Includes indoor court booking only (no winner/runner prize money)</div>
-      </div>
-      <div class="prize-card">
-        <div class="pk">Payment timing</div>
-        <div class="amt">Taken later</div>
-        <div class="sub">Based on registrations and responses, the final amount/payment details will be informed later</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="schedule">
-  <div class="wrap">
-    <div class="sched-band reveal">
+    <div class="sched-band newbie-band reveal">
       <div>
-        <h3>Schedule drops once teams are set</h3>
-        <p>Once all teams are finalized through the live auction, the complete fixture list will be shared for weekday games.</p>
+        <h3>New to VPL?</h3>
+        <p>See how the whole thing works — the auction format, the season path from sign-up to final whistle, and how registration runs.</p>
       </div>
-      <div class="sched-facts">
-        <div class="sched-fact"><span class="k">Match days</span><span class="v">Weekdays only</span></div>
-        <div class="sched-fact"><span class="k">Time window</span><span class="v">7:00 PM – 9:00 PM</span></div>
-        <div class="sched-fact"><span class="k">Fixtures</span><span class="v">Released post-auction</span></div>
+      <div class="nb-go">
+        <a href="about.html" class="btn btn-primary">How it works →</a>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="final-cta">
-  <div class="wrap">
-    <div class="reveal">
-      <h2>New Teams. New Strategies. One Champion.</h2>
-      <p>Register now, choose your preferred registration option, and we will share payment details later based on responses.</p>
-      <p style="font-size:14px; margin-top:18px;">For any questions, reach out to organisers: Sravan - 0458808512, Raghu - 0422024444.</p>
-      <a href="register.html" class="btn btn-primary">Register now</a>
     </div>
   </div>
 </section>
 
 <footer class="foot">
   <div class="wrap">
-    <span>Volleyball Premier League</span>
-    <a href="register.html">Register →</a>
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <span style="display:flex; gap:18px; align-items:center;">
+      <a href="about.html">How it works</a>
+      <a href="register.html">Register</a>
+      <a href="seasons/season-1-unity/index.html">Players &amp; Teams →</a>
+    </span>
   </div>
 </footer>
 

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Tournament Rules</title>
+<meta name="description" content="Volleyball Premier League Season 1 (UNITY) — official tournament rules: match scoring, serving, the fair-play rotation, complaints safeguard, conduct and safety.">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="season.css">
+<style>
+  /* ---- Tournament-rules page: self-contained additions (uses shared tokens) ---- */
+
+  /* Sticky in-page jump nav */
+  .subnav{
+    position:sticky; top:0; z-index:40;
+    background:rgba(250,250,248,.92); backdrop-filter:saturate(160%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .subnav .wrap{
+    display:flex; gap:8px; overflow-x:auto; padding:12px 24px;
+    scrollbar-width:none;
+  }
+  .subnav .wrap::-webkit-scrollbar{display:none;}
+  .subnav a{
+    flex:0 0 auto; font-size:13px; font-weight:600; color:var(--ink-soft);
+    text-decoration:none; padding:7px 14px; border:1px solid var(--line);
+    border-radius:100px; background:var(--surface); white-space:nowrap;
+    transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .subnav a:hover{border-color:var(--spike); color:var(--spike);}
+
+  /* Small link row under the hero heading */
+  .hero-links{margin-top:18px; display:flex; gap:16px; flex-wrap:wrap;}
+  .hero-links a{color:var(--court-2); font-weight:700; font-size:14px; text-decoration:none;}
+  .hero-links a:hover{color:var(--spike);}
+
+  /* Scoring: labelled block above each stats-grid */
+  .score-block{margin-bottom:28px;}
+  .score-block:last-child{margin-bottom:0;}
+  .score-block .sb-head{
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px;
+  }
+  .score-block .sb-head h3{
+    font-family:var(--font-display); font-size:20px; font-weight:800; letter-spacing:-0.01em; color:var(--ink);
+  }
+  .score-block .sb-head .sb-tag{
+    font-size:12px; font-weight:700; color:var(--court-2); background:#EAF0FF;
+    padding:4px 10px; border-radius:100px;
+  }
+  .score-note{margin-top:10px; color:var(--ink-soft); font-size:14px; line-height:1.6;}
+  .score-note code{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:2px 7px; font-size:13px; color:var(--ink);
+  }
+
+  /* Guarantee flags row */
+  .guarantees{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 26px;}
+  .guarantees span{
+    font-size:13px; font-weight:700; color:#0B6B3A; background:#E3F5EA;
+    padding:7px 13px; border-radius:100px; border:1px solid #C5E9D3;
+  }
+
+  /* S-rotation tracker table */
+  .rot-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface);}
+  table.rot{border-collapse:collapse; width:100%; min-width:620px; font-size:14px;}
+  table.rot th, table.rot td{padding:12px 10px; text-align:center; border-bottom:1px solid var(--line);}
+  table.rot thead th{
+    font-family:var(--font-display); font-weight:800; color:var(--ink);
+    background:var(--paper); position:sticky; left:auto;
+  }
+  table.rot tbody th{
+    text-align:left; font-weight:700; color:var(--ink); background:var(--surface);
+    white-space:nowrap;
+  }
+  table.rot td.s{color:var(--spike); font-weight:800; background:var(--spike-soft);}
+  table.rot td.v{color:var(--ink-faint); font-weight:700;}
+  table.rot td.cnt{font-weight:800; color:var(--court-2); background:#EAF0FF;}
+  table.rot tbody tr:last-child th, table.rot tbody tr:last-child td{border-bottom:none;}
+  .rot-key{display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; font-size:13px; color:var(--ink-soft);}
+  .rot-key b{color:var(--ink);}
+  .rot-key .k-s{color:var(--spike);}
+
+  /* Callout box (safeguard etc.) */
+  .callout{
+    border:1px solid var(--line); border-left:4px solid var(--court-2);
+    background:var(--surface); border-radius:var(--radius-sm);
+    padding:24px 26px; margin-top:8px;
+  }
+  .callout.warn{border-left-color:var(--spike); background:#FFF7F3;}
+  .callout h4{font-family:var(--font-display); font-size:18px; font-weight:800; margin-bottom:8px; color:var(--ink);}
+  .callout p{color:var(--ink-soft); font-size:15px; line-height:1.65; max-width:70ch;}
+  .callout ul{margin:12px 0 0 18px; color:var(--ink-soft); font-size:15px; line-height:1.7;}
+  .callout strong{color:var(--ink);}
+
+  /* Skim-then-expand: full-detail accordions (native, no JS) */
+  details.acc{
+    border:1px solid var(--line); border-radius:var(--radius-sm);
+    background:var(--surface); margin-top:16px; overflow:hidden;
+  }
+  details.acc > summary{
+    cursor:pointer; list-style:none; padding:16px 20px;
+    font-weight:700; font-size:14.5px; color:var(--court-2);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  details.acc > summary::-webkit-details-marker{display:none;}
+  details.acc > summary::after{content:"+"; font-size:20px; color:var(--ink-faint); font-weight:400;}
+  details.acc[open] > summary::after{content:"–";}
+  details.acc > summary:hover{color:var(--spike);}
+  details.acc .acc-body{padding:0 20px 20px; color:var(--ink-soft); font-size:14.5px; line-height:1.7;}
+  details.acc .acc-body ul{margin:0 0 0 18px;}
+  details.acc .acc-body li{margin-bottom:6px;}
+  details.acc .acc-body strong{color:var(--ink);}
+
+  .lead-2{max-width:64ch; color:var(--ink-soft); font-size:16px; line-height:1.7; margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="index.html" class="nav-mark"><span class="dot"></span> Volleyball Premier League <span class="season-tag">S1 · Unity</span></a>
+    <div class="nav-links">
+      <a href="index.html">Players &amp; Teams</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="results.html">Results</a>
+      <a href="tournament.html">Rules</a>
+    </div>
+    <a href="rules.html" class="nav-cta">Auction rules</a>
+  </div>
+</nav>
+
+<header class="vpl-hero" style="padding:56px 0 36px;">
+  <div class="wrap" style="grid-template-columns:1fr;">
+    <div>
+      <span class="eyebrow">Season 1 · UNITY · Tournament rules</span>
+      <h1 style="font-size:clamp(34px,5vw,56px);">Official Tournament Rules</h1>
+      <p class="lead">How matches are scored, how serving and play work, and — most importantly — the <strong>fair-play rules</strong> that give every player a genuine chance on court while owners keep their team strategy.</p>
+      <div class="hero-links">
+        <a href="#owner">→ What every owner must do</a>
+        <a href="#fairplay">→ Fair-play rotation</a>
+        <a href="rules.html">→ Looking for the auction rules?</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Sticky jump nav -->
+<div class="subnav">
+  <div class="wrap">
+    <a href="#owner">Owner must-dos</a>
+    <a href="#scoring">Scoring</a>
+    <a href="#toss">Toss &amp; line-up</a>
+    <a href="#fairplay">Fair play</a>
+    <a href="#complaint">Complaints</a>
+    <a href="#serving">Serving</a>
+    <a href="#play">Playing &amp; faults</a>
+    <a href="#conduct">Conduct &amp; safety</a>
+    <a href="#committee">Committee</a>
+  </div>
+</div>
+
+<!-- ============ WHAT EVERY OWNER MUST DO ============ -->
+<section class="section" id="owner" style="padding-top:52px;">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Start here</span>
+      <h2>What every owner must do</h2>
+      <p>The four things that actually affect you as a Team Owner. Everything else below is the detail behind these.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="ri">📝</div>
+        <h4>Declare your 7th &amp; 8th at the toss</h4>
+        <p>At game-day toss, the <strong>toss loser</strong> declares their 7th &amp; 8th players first, then the toss winner. Line-ups are recorded before the match starts.</p>
+        <span class="flag">Before every match</span>
+      </div>
+      <div class="rule-card">
+        <div class="ri">8️⃣</div>
+        <h4>No substitutions before 8 points</h4>
+        <p>Your 6 starters stay on until <strong>either team reaches 8 points</strong>. Your 7th &amp; 8th enter after that; from then on you can substitute freely by your strategy.</p>
+        <span class="flag warn">Locked 0 → 8</span>
+      </div>
+      <div class="rule-card">
+        <div class="ri">🔁</div>
+        <h4>Share the “S” role fairly</h4>
+        <p>Over the 8 league matches, <strong>every player must be designated “S” (7th/8th) at least twice</strong>. You choose the combinations match to match.</p>
+        <span class="flag">2× S per player</span>
+      </div>
+      <div class="rule-card">
+        <div class="ri">🛡️</div>
+        <h4>Honour the fairness safeguard</h4>
+        <p>If a valid complaint is upheld, the player <strong>must start the semi-final</strong> (and Grand Final if reached) and you <strong>refund their $50</strong>. Play fair and this never applies.</p>
+        <span class="flag warn">$50 refund if breached</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCORING ============ -->
+<section class="section section-alt" id="scoring">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">1 · Match scoring</span>
+      <h2>Scoring at a glance</h2>
+      <p>Rally-point scoring throughout. Win by 2, up to the cap — once the cap is reached, the very next point wins.</p>
+    </div>
+
+    <div class="score-block">
+      <div class="sb-head"><h3>League match</h3><span class="sb-tag">One set</span></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat"><div class="num">1</div><div class="lbl">Set to 25</div></div>
+        <div class="stat"><div class="num">+2</div><div class="lbl">Win-by margin</div></div>
+        <div class="stat"><div class="num">30</div><div class="lbl">Maximum score</div></div>
+        <div class="stat"><div class="num">30–29</div><div class="lbl">Cap → next point wins</div></div>
+      </div>
+      <p class="score-note">Examples: <code>25–23</code> win · <code>26–24</code> win · at <code>29–29</code> the next point wins · <code>30–29</code> win.</p>
+    </div>
+
+    <div class="score-block">
+      <div class="sb-head"><h3>Semi-finals</h3><span class="sb-tag">Best of 3</span></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat"><div class="num">21</div><div class="lbl">Set 1 · cap 30</div></div>
+        <div class="stat"><div class="num">21</div><div class="lbl">Set 2 · cap 30</div></div>
+        <div class="stat"><div class="num">15</div><div class="lbl">Set 3 (if needed) · cap 21</div></div>
+      </div>
+      <p class="score-note">Win each set by 2 up to the cap. The 21-point sets cap at 30; the 15-point deciding set caps at 21. Set 3 is played only if the match is 1–1.</p>
+    </div>
+
+    <div class="score-block">
+      <div class="sb-head"><h3>Grand Final</h3><span class="sb-tag">Best of 3</span></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat"><div class="num">25</div><div class="lbl">Set 1 · cap 30</div></div>
+        <div class="stat"><div class="num">25</div><div class="lbl">Set 2 · cap 30</div></div>
+        <div class="stat"><div class="num">21</div><div class="lbl">Set 3 (if needed) · cap 30</div></div>
+      </div>
+      <p class="score-note">Win each set by 2 up to the cap. All caps are 30. Set 3 is played only if the match is 1–1.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOSS & LINE-UP ============ -->
+<section class="section" id="toss">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">2 · Serve, toss &amp; line-up</span>
+      <h2>Game-day toss &amp; line-up</h2>
+      <p>One coin toss before the match — <em>and we make it a little more interesting.</em> 😁 Team Owner + one team member attend the toss.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-when">Step 1</div><div class="tl-body"><h4>Toss winner chooses</h4><p>The toss winner picks either <strong>Serve first</strong> or <strong>preferred court side</strong>. The other team gets the remaining option.</p></div></div>
+      <div class="tl-item"><div class="tl-when">Step 2</div><div class="tl-body"><h4>Toss loser declares first</h4><p>The toss <strong>loser</strong> declares their <strong>7th &amp; 8th</strong> players first.</p></div></div>
+      <div class="tl-item"><div class="tl-when">Step 3</div><div class="tl-body"><h4>Toss winner declares</h4><p>The toss <strong>winner</strong> then declares their 7th &amp; 8th players.</p></div></div>
+      <div class="tl-item"><div class="tl-when">Step 4</div><div class="tl-body"><h4>Line-ups recorded</h4><p>Both line-ups are written down <strong>before the match starts</strong>.</p></div></div>
+      <div class="tl-item"><div class="tl-when">Step 5</div><div class="tl-body"><h4>7th &amp; 8th enter after 8 points</h4><p>They can come on once <strong>either team reaches 8 points</strong>. Later substitutions follow the team’s strategy and rotation rules.</p></div></div>
+    </div>
+
+    <div class="rules-grid" style="margin-top:28px;">
+      <div class="rule-card">
+        <div class="ri">🔀</div>
+        <h4>Serve order across sets (Semi &amp; Final)</h4>
+        <p>Toss applies to Set 1: choose serve → you serve first; choose court → the other team serves first. Set 2 starts with the opposite team serving. If a Set 3 is needed, whoever served first in Set 1 serves first again.</p>
+      </div>
+      <div class="rule-card">
+        <div class="ri">🚫</div>
+        <h4>No libero this season</h4>
+        <p>No libero is used in VPL Season 1. All 8 players follow normal rotation and substitution rules. After 8 points, any player can replace any other regardless of court position; before 8 points, no substitutions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAIR PLAY (centrepiece) ============ -->
+<section class="section section-alt" id="fairplay">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">5 · Fair playing opportunity</span>
+      <h2>The fair-play rotation</h2>
+      <p>This is the heart of VPL. It ensures every player gets a reasonable chance to play — while owners still make their own tactical decisions.</p>
+    </div>
+
+    <p class="lead-2">Each team has <strong>8 players</strong>. Every league match, <strong>6 start</strong> and <strong>2 sit as the 7th &amp; 8th</strong> — marked <strong>S</strong> in the tracker. The S players can enter once either team reaches <strong>8 points</strong>. A starter cannot be substituted before the 8-point mark; after it, substitutions follow the owner’s strategy.</p>
+
+    <div class="guarantees">
+      <span>Every player is S at least 2× over 8 matches</span>
+      <span>Every player starts 6 matches</span>
+      <span>16 S slots (2 × 8) ÷ 8 players = 2 each</span>
+    </div>
+
+    <h3 style="font-family:var(--font-display); font-size:20px; font-weight:800; margin:8px 0 14px;">Example — rotation tracker</h3>
+    <div class="rot-scroll">
+      <table class="rot">
+        <thead>
+          <tr><th>Player</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>M6</th><th>M7</th><th>M8</th><th>S count</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Player 1</th><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 2</th><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 3</th><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 4</th><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 5</th><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 6</th><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 7</th><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="cnt">2</td></tr>
+          <tr><th>Player 8</th><td class="v">✓</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="v">✓</td><td class="s">S</td><td class="v">✓</td><td class="cnt">2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rot-key">
+      <span><b class="k-s">S</b> = 7th/8th player (substitute at the start of the match)</span>
+      <span><b>✓</b> = starting player</span>
+    </div>
+
+    <div class="sched-band" style="margin-top:28px; grid-template-columns:1fr;">
+      <div>
+        <h3>How it works</h3>
+        <p style="max-width:74ch;"><strong>Match 1:</strong> Players 1 &amp; 2 are S; Players 3–8 start; 1 &amp; 2 can enter after 8 points.
+        <strong>Match 2:</strong> Players 3 &amp; 4 are S; the rest start. And so on across all 8 matches — so every player is S twice, starts 6 matches, and gets the first 8 points in 6 matches. After 8 points, the owner can make further substitutions by strategy.</p>
+        <p style="margin-top:12px;">This is only an example — the same two players don’t have to be S together, and owners can change the combinations to suit their team.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px;">
+      <h4>Availability &amp; injuries</h4>
+      <p>Follow the rotation where reasonably possible. If a player is injured, unavailable, unable to continue, or has another genuine reason, the owner may adjust the rotation. The committee takes genuine circumstances into account. Communicate openly within your team and manage it fairly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORMAL COMPLAINT ============ -->
+<section class="section" id="complaint">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">7 · Fairness safeguard</span>
+      <h2>Formal player complaint</h2>
+      <p>The rotation rule provides a fair opportunity — it is <strong>not</strong> meant to interfere with normal team strategy. Try to resolve concerns within the team first.</p>
+    </div>
+    <div class="callout warn">
+      <h4>If a player feels they didn’t get a reasonable opportunity</h4>
+      <p>They may submit a formal complaint to the VPL Organising Committee, which may review participation, the S-rotation record, availability, injuries, team circumstances and any other relevant information.</p>
+      <p style="margin-top:12px;"><strong>If the complaint is upheld:</strong></p>
+      <ul>
+        <li>The player <strong>must start the semi-final</strong>.</li>
+        <li>If the team reaches the <strong>Grand Final</strong>, the player <strong>must start</strong> that too.</li>
+        <li>The player <strong>cannot be substituted</strong> in those matches unless injured or unavailable.</li>
+        <li>The Team Owner must <strong>refund the player’s $50 registration fee</strong>.</li>
+      </ul>
+      <p style="margin-top:12px;">This is a fairness safeguard, not a tool to control normal team strategy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVING ============ -->
+<section class="section section-alt" id="serving">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">3 · Serving rules</span>
+      <h2>Serving</h2>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="ri">🔄</div><h4>Rotation is mandatory</h4><p>No player may serve continuously — serve rotation must be followed.</p></div>
+      <div class="rule-card"><div class="ri">🦶</div><h4>Behind the end line</h4><p>Serve from behind the end line until after contact with the ball. Underhand or overhand is allowed, and the ball must be tossed before serving.</p></div>
+      <div class="rule-card"><div class="ri">🥅</div><h4>Net serves play on</h4><p>A served ball may touch the net and continue into the opponent’s court. It must land inside the court.</p></div>
+      <div class="rule-card"><div class="ri">🙅</div><h4>Serve can’t be attacked</h4><p>A serve cannot be attacked or blocked — it must be received with a pass. Maximum 3 touches per side.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLAYING & FAULTS ============ -->
+<section class="section" id="play">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">4 · Playing the ball</span>
+      <h2>Playing the ball &amp; faults</h2>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="ri">3️⃣</div><h4>Three touches</h4><p>Max 3 touches to return the ball. A block doesn’t count as one of the 3. No consecutive double-hit, except as permitted after a block.</p></div>
+      <div class="rule-card"><div class="ri">〰️</div><h4>Off the net &amp; the lines</h4><p>The ball may be played off the net during a rally. A ball touching a boundary line is <strong>in</strong>.</p></div>
+      <div class="rule-card"><div class="ri">✋</div><h4>Legal contact</h4><p>Contact with any body part without catching, carrying, palming or throwing. Simultaneous contact by two players counts as one team touch.</p></div>
+      <div class="rule-card"><div class="ri">🧱</div><h4>Net contact</h4><p>Touching the net while the ball is in play is a fault — <em>except</em> when the ball is driven into the net hard enough that the net then touches an opponent; play continues.</p></div>
+      <div class="rule-card"><div class="ri">🙌</div><h4>Reaching over the net</h4><p>Only allowed on a natural follow-through, or when legally blocking an attack, and without interfering with the opponent’s play.</p></div>
+      <div class="rule-card"><div class="ri">➖</div><h4>Centre line</h4><p>Don’t completely cross the centre line if it interferes with an opponent or creates an advantage. Player safety comes first.</p></div>
+    </div>
+
+    <details class="acc">
+      <summary>Full list of basic violations (faults)</summary>
+      <div class="acc-body">
+        <ul>
+          <li>Stepping on or over the end line while serving.</li>
+          <li>Failing to serve the ball over the net.</li>
+          <li>Carrying, palming or throwing the ball.</li>
+          <li>Illegal contact with the ball.</li>
+          <li>Touching the net with any part of the body while the ball is in play.</li>
+          <li>Illegally reaching over the net.</li>
+          <li>Reaching underneath the net in a way that interferes with an opponent or the ball.</li>
+          <li>Completely crossing the centre line with the foot in a way that interferes with an opponent or creates an advantage.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CONDUCT, REFEREEING, SAFETY ============ -->
+<section class="section section-alt" id="conduct">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">12–15 · Conduct &amp; safety</span>
+      <h2>Refereeing, responsibilities &amp; safety</h2>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="ri">🧑‍⚖️</div><h4>Refereeing</h4><p>The referee’s decision during a match is final. Teams take turns providing umpiring support. Respect decisions; don’t delay the match. Unresolved issues go to the committee.</p></div>
+      <div class="rule-card"><div class="ri">👔</div><h4>Team Owner responsibilities</h4><p>Manage the squad, plan rotation, keep S rotation fair, handle availability/injuries, make sure players know the rules, support umpiring, and set the tone for good behaviour.</p></div>
+      <div class="rule-card"><div class="ri">🤝</div><h4>Sportsmanship</h4><p>VPL is a community tournament. Respect teammates, opponents and referees; accept decisions; play fairly; avoid arguments and aggressive behaviour; prioritise safety; make it positive for everyone.</p></div>
+      <div class="rule-card"><div class="ri">⛑️</div><h4>Player safety &amp; insurance</h4><p>Players participate at their own risk and are responsible for their own insurance and medical needs. Tell your owner if injured; don’t continue if it’s unsafe. Organisers aren’t liable for injuries, accidents or losses.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMITTEE & SPIRIT ============ -->
+<section class="section" id="committee">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">16–17 · Organising committee</span>
+      <h2>Committee &amp; the spirit of the tournament</h2>
+    </div>
+    <div class="callout">
+      <h4>The VPL Organising Committee has final authority on</h4>
+      <p>Interpretation of the rules, formal complaints, match disputes, scheduling, player eligibility, exceptional circumstances, and anything not specifically covered here. The committee’s decision is final.</p>
+    </div>
+    <div class="sched-band" style="margin-top:20px; grid-template-columns:1fr;">
+      <div>
+        <h3>Competitive · Fair · Enjoyable</h3>
+        <p style="max-width:70ch;">These rules exist to give everyone a genuine opportunity to play while letting teams stay competitive and make their own strategic decisions.</p>
+        <p style="margin-top:10px; font-weight:800; color:#fff;">Play hard. Play fair. Enjoy the game. 🏐</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Volleyball Premier League · Season 1 — UNITY</span>
+    <span style="display:flex; gap:18px; align-items:center;">
+      <a href="rules.html">Auction rules</a>
+      <a href="schedule.html">Schedule →</a>
+      <a href="index.html">Players &amp; Teams →</a>
+    </span>
+  </div>
+</footer>
+
+<script src="../../nav.js"></script>
+</body>
+</html>

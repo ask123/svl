@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPL Season 1 · Match-day Print Pack</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{ background:#e9e9e6; }
+  .toolbar{
+    position:sticky; top:0; z-index:10; background:#111; color:#fff;
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px 18px;
+  }
+  .toolbar h1{ font-size:16px; font-weight:800; margin-right:auto; }
+  .toolbar button, .toolbar a{
+    background:#fff; color:#111; border:none; border-radius:8px; padding:9px 14px;
+    font-size:13px; font-weight:700; cursor:pointer; text-decoration:none;
+  }
+  .toolbar .hint{ font-size:12px; color:rgba(255,255,255,.7); width:100%; }
+  .gate{ max-width:420px; margin:60px auto; background:#fff; border-radius:14px; padding:28px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+  .gate h2{ font-size:20px; font-weight:800; margin-bottom:8px; }
+  .gate p{ color:#666; font-size:14px; margin-bottom:16px; }
+  .gate button{ background:#111; color:#fff; border:none; border-radius:8px; padding:11px 18px; font-weight:700; cursor:pointer; }
+
+  .sheets{ padding:24px 12px 60px; }
+  .sheet{
+    background:#fff; width:210mm; min-height:297mm; margin:0 auto 24px;
+    padding:12mm; box-shadow:0 8px 24px rgba(0,0,0,.18); box-sizing:border-box; color:#111;
+  }
+  .sheet-label{ text-align:center; font-size:12px; color:#666; margin:0 auto 6px; font-weight:700; }
+  .sh-head{ display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #111; padding-bottom:6px; margin-bottom:10px; }
+  .sh-head .t{ font-size:16px; font-weight:800; }
+  .sh-head .r{ font-size:12px; color:#555; }
+
+  /* Team sheet */
+  .team-sheet{ border:2px solid #111; border-radius:10px; padding:8mm; margin-bottom:8mm; }
+  .ts-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .ts-top img{ width:16mm; height:16mm; object-fit:contain; }
+  .ts-top .tn{ font-size:20px; font-weight:800; text-transform:uppercase; }
+  .ts-top .meta{ margin-left:auto; font-size:12px; color:#555; }
+  table.roster{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.roster th, table.roster td{ border:1px solid #bbb; padding:6px 8px; text-align:left; }
+  table.roster th{ background:#f2f2f0; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:.02em; }
+  table.roster .c{ text-align:center; width:14mm; }
+  table.roster .box{ display:inline-block; width:14px; height:14px; border:1.5px solid #333; border-radius:3px; }
+  .subs{ margin-top:8px; }
+  .subs .lbl{ font-size:11px; font-weight:800; text-transform:uppercase; color:#333; margin-bottom:4px; }
+  table.sublog{ width:100%; border-collapse:collapse; font-size:12px; }
+  table.sublog th, table.sublog td{ border:1px solid #bbb; padding:7px 8px; }
+  table.sublog th{ background:#f2f2f0; font-weight:800; font-size:11px; }
+  table.sublog td{ height:9mm; }
+
+  /* rotation tracker */
+  .tracker{ border:2px solid #111; border-radius:10px; padding:7mm; margin-bottom:7mm; }
+  .tk-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .tk-top img{ width:14mm; height:14mm; object-fit:contain; }
+  .tk-top .tn{ font-size:18px; font-weight:800; text-transform:uppercase; }
+  table.rot{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.rot th, table.rot td{ border:1px solid #bbb; padding:8px 6px; }
+  table.rot th{ background:#f2f2f0; font-weight:800; font-size:11px; text-transform:uppercase; }
+  table.rot th.c, table.rot td.c{ text-align:center; width:11mm; }
+  table.rot td.pn{ font-weight:600; }
+  table.rot td.cnt{ background:#f7f7f5; }
+  .tk-note{ font-size:11px; color:#555; margin-top:6px; }
+
+  /* Score sheets */
+  .slot-block{ border:1px solid #ccc; border-radius:10px; padding:6mm; margin-bottom:6mm; }
+  .slot-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; border-bottom:1px dashed #bbb; padding-bottom:6px; }
+  .slot-head .s{ font-size:15px; font-weight:800; }
+  .slot-head .tm{ font-size:12px; color:#555; }
+  .slot-head .rest{ margin-left:auto; font-size:11px; color:#777; }
+  .m-row{ display:grid; grid-template-columns:22mm 1fr; gap:8px; align-items:center; padding:5px 0; }
+  .m-court{ font-size:11px; font-weight:800; color:#444; }
+  .m-teams{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; }
+  .m-teams .nm{ min-width:44mm; }
+  .m-vs{ color:#999; font-weight:600; }
+  .sbox{ display:inline-block; width:12mm; height:9mm; border:1.5px solid #333; border-radius:4px; vertical-align:middle; }
+  .sbox.sm{ width:9mm; }
+  .m-win{ font-size:11px; color:#777; margin-left:8px; }
+
+  /* cover page */
+  .cover .big{ font-size:28px; font-weight:900; letter-spacing:-0.01em; }
+  .cover .sub{ color:#555; font-size:13.5px; margin-top:6px; }
+  .cover .tt{ margin-top:16px; border-collapse:collapse; width:100%; font-size:12px; }
+  .cover .tt th, .cover .tt td{ border:1px solid #bbb; padding:6px 9px; text-align:left; }
+  .cover .tt th{ background:#f2f2f0; font-weight:800; font-size:11px; text-transform:uppercase; }
+  .cover .tt td.slot{ font-weight:800; white-space:nowrap; }
+  .cover .tt td.time{ white-space:nowrap; color:#333; }
+  .cover .tt tr.phase td{ background:#111; color:#fff; font-weight:800; text-transform:uppercase; font-size:11px; letter-spacing:.03em; }
+
+  @media print{
+    body{ background:#fff; }
+    .toolbar, .sheet-label, .gate{ display:none !important; }
+    .sheets{ padding:0; }
+    .sheet{ box-shadow:none; margin:0; width:auto; min-height:auto; padding:0; }
+    @page{ size:A4; margin:12mm; }
+    .sheet{ page-break-after:always; }
+    .sheet:last-child{ page-break-after:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print" id="toolbar" style="display:none;">
+  <h1>🖨️ Match-day pack — Season 1 · UNITY</h1>
+  <button onclick="window.print()">Print / Save as PDF</button>
+  <a href="schedule-admin.html">← Schedule admin</a>
+  <div class="hint">Cover timetable · a rotation tracker per team (mark S / ✓ and check each player is S ×2) · then score sheets for every fixture. Tip: in the print dialog turn OFF “Headers and footers”.</div>
+</div>
+
+<div class="gate no-print" id="gate">
+  <h2>🔒 Organiser only</h2>
+  <p>Enter the organiser password to view and print the match-day pack.</p>
+  <button id="unlockBtn">🔓 Unlock</button>
+</div>
+
+<div class="sheets" id="sheets"></div>
+
+<script src="players.js"></script>
+<script src="results.js"></script>
+<script src="schedule.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const LOCAL = (typeof IS_LOCAL !== 'undefined') ? IS_LOCAL
+    : (location.protocol === 'file:' || ['localhost','127.0.0.1','::1'].includes(location.hostname));
+
+  async function authenticate(pw){
+    try{
+      const res = await fetch('/.netlify/functions/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}) });
+      const d = await res.json().catch(()=>({}));
+      return (res.ok && d.ok===true);
+    }catch(e){ return false; }
+  }
+
+  const posShort = (arr) => (arr||[]).map(p => (typeof POSITIONS!=='undefined' && POSITIONS[p]) ? POSITIONS[p] : p).join(' / ');
+
+  // Simple rotation tracker: players × the 8 matches + an S-count column.
+  function teamTracker(team, players){
+    const heads = [];
+    for (let m = 1; m <= 8; m++) heads.push(`<th class="c">M${m}</th>`);
+    const rows = [];
+    for (let i = 0; i < 8; i++){
+      const p = players[i];
+      let cells = '';
+      for (let m = 1; m <= 8; m++) cells += `<td class="c"></td>`;
+      rows.push(`<tr><td class="pn">${p ? (p.owner ? '👑 ' : '') + p.name : ''}</td>${cells}<td class="c cnt"></td></tr>`);
+    }
+    return `<div class="tracker" style="border-color:${team.primary||'#111'}">
+      <div class="tk-top">
+        <img src="${team.logo}" alt="">
+        <span class="tn" style="color:${team.primary||'#111'}">${team.animal||''} ${team.name}</span>
+      </div>
+      <table class="rot">
+        <thead><tr><th>Player</th>${heads.join('')}<th class="c">S count</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+      <div class="tk-note"><b>S</b> = 7th/8th (sub at start) · <b>✓</b> = starting. Each player must be <b>S at least twice</b> across the 8 matches.</div>
+    </div>`;
+  }
+
+  function nameOf(id, fallback){ const t = id ? teamById(id) : null; return t ? `${t.animal||''} ${t.name}` : (fallback || 'TBD'); }
+
+  function scoreBoxes(m){
+    if (m.phase === 'league') {
+      return `<span class="sbox"></span>`;
+    }
+    return `<span class="sbox sm"></span> <span class="sbox sm"></span> <span class="sbox sm"></span>`;
+  }
+
+  function matchRow(m, courtNo){
+    const isKO = m.phase !== 'league';
+    let home, away;
+    if (isKO){ const rt = resolveTeams(m); home = nameOf(rt.home, slotLabel(m.src.home)); away = nameOf(rt.away, slotLabel(m.src.away)); }
+    else { home = nameOf(m.home); away = nameOf(m.away); }
+    const row = `<div class="m-row">
+      <div class="m-court">Court ${courtNo}${isKO ? '<br>'+m.label : ''}</div>
+      <div class="m-teams">
+        <span class="nm">${home}</span> ${scoreBoxes(m)}
+        <span class="m-vs">vs</span>
+        ${scoreBoxes(m)} <span class="nm">${away}</span>
+        ${isKO ? '<span class="m-win">(best of 3 — 3 set boxes each)</span>' : '<span class="m-win">Winner ______</span>'}
+      </div>
+    </div>`;
+    return row;
+  }
+
+  function coverPage(leagueSlots, koSlots){
+    const timeOf = s => s.ms.map(m => m.time).find(Boolean) || '';
+    const cell = m => {
+      if (!m) return '—';
+      if (m.phase !== 'league') return m.label;
+      return `${nameOf(m.home)} v ${nameOf(m.away)}`;
+    };
+    const trow = (label, s) => {
+      const sorted = s.ms.slice().sort(byCourt);
+      return `<tr><td class="slot">${label}</td><td class="time">${timeOf(s)}</td><td>${cell(sorted[0])}</td><td>${cell(sorted[1])}</td></tr>`;
+    };
+    const league = leagueSlots.map(s => trow('Slot ' + s.no, s)).join('');
+    const ko = koSlots.map(s => trow(s.ms.every(m => m.phase === 'semifinal') ? 'Semifinals' : 'Grand Final', s)).join('');
+    return `<div class="sheet cover">
+      <div class="big">Volleyball Premier League — Season 1 · UNITY</div>
+      <div class="sub">Match Day · <b>Saturday 22 August 2026</b> · Hawkesbury Indoor Stadium · 2 courts</div>
+      <div class="sub">League 1–4 PM &nbsp;·&nbsp; Semifinals 4–5 PM &nbsp;·&nbsp; Grand Final 5–6 PM</div>
+      <table class="tt">
+        <thead><tr><th>Slot</th><th>Time</th><th>Court 1</th><th>Court 2</th></tr></thead>
+        <tbody>
+          <tr class="phase"><td colspan="4">League · 1–4 PM</td></tr>
+          ${league}
+          <tr class="phase"><td colspan="4">Knockouts · 4–6 PM</td></tr>
+          ${ko}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  function slotsOf(matches){
+    const g = new Map();
+    matches.forEach(m => { const k = (m.order!=null?m.order:9999); if(!g.has(k)) g.set(k,[]); g.get(k).push(m); });
+    return [...g.entries()].sort((a,b)=>a[0]-b[0]).map(([order,ms],i)=>({order,no:i+1,ms}));
+  }
+  function restingNames(ms){
+    const playing = new Set();
+    ms.forEach(m => { const rt = resolveTeams(m); [rt.home,rt.away,m.home,m.away].forEach(id=>{ if(id) playing.add(id); }); });
+    return (typeof TEAMS!=='undefined'?TEAMS:[]).filter(t=>!playing.has(t.id)).map(t=>t.name);
+  }
+  const byCourt = (a,b)=>((a.court??1)-(b.court??1))||a.id.localeCompare(b.id);
+
+  function slotBlock(slot, isKO){
+    const timeBit = slot.ms.map(m=>m.time).find(Boolean);
+    const rest = isKO ? [] : restingNames(slot.ms);
+    const title = isKO ? (slot.ms.every(m=>m.phase==='semifinal') ? 'Semifinals' : 'Grand Final') : ('Slot ' + slot.no);
+    const rows = slot.ms.slice().sort(byCourt).map(m => matchRow(m, (m.court!=null?m.court:1))).join('');
+    return `<div class="slot-block">
+      <div class="slot-head"><span class="s">${title}</span>${timeBit?`<span class="tm">🕒 ${timeBit}</span>`:''}${rest.length?`<span class="rest">Resting · ${rest.join(', ')}</span>`:''}</div>
+      ${rows}
+    </div>`;
+  }
+
+  function render(){
+    const leagueSlots = slotsOf(leagueMatches());
+    const koSlots = slotsOf(knockoutMatches());
+    let html = '';
+
+    // ---- Cover page: the day's timetable ----
+    html += `<div class="sheet-label no-print">Cover · timetable</div>`;
+    html += coverPage(leagueSlots, koSlots);
+
+    // ---- Team sheets: 2 teams per A4 page ----
+    const players = (typeof getPlayers === 'function') ? getPlayers() : PLAYERS.slice();
+    const byTeam = {};
+    (typeof TEAMS!=='undefined'?TEAMS:[]).forEach(t => byTeam[t.id] = []);
+    players.forEach(p => { if (p.team && byTeam[p.team]) byTeam[p.team].push(p); });
+    const teamList = (typeof TEAMS!=='undefined'?TEAMS:[]);
+    for (let i = 0; i < teamList.length; i += 2){
+      const pair = teamList.slice(i, i+2);
+      html += `<div class="sheet-label no-print">Rotation trackers ${i+1}–${Math.min(i+2,teamList.length)}</div>`;
+      html += `<div class="sheet">
+        <div class="sh-head"><span class="t">Rotation tracker · Season 1 · UNITY</span><span class="r">Sat 22 Aug 2026 · Hawkesbury Indoor Stadium</span></div>
+        ${pair.map(t => teamTracker(t, byTeam[t.id]||[])).join('')}
+      </div>`;
+    }
+
+    // ---- League score sheets: 5 slots per page ----
+    const perPage = 5;
+    for (let i = 0; i < leagueSlots.length; i += perPage){
+      const group = leagueSlots.slice(i, i+perPage);
+      html += `<div class="sheet-label no-print">Score sheet · league</div>`;
+      html += `<div class="sheet">
+        <div class="sh-head"><span class="t">Score sheet · League</span><span class="r">Sat 22 Aug 2026 · 1–4 PM · 2 courts</span></div>
+        ${group.map(s => slotBlock(s, false)).join('')}
+      </div>`;
+    }
+    // ---- Knockouts on their own sheet ----
+    html += `<div class="sheet-label no-print">Score sheet · knockouts</div>`;
+    html += `<div class="sheet">
+      <div class="sh-head"><span class="t">Score sheet · Semifinals &amp; Grand Final</span><span class="r">Sat 22 Aug 2026 · 4–6 PM</span></div>
+      ${koSlots.map(s => slotBlock(s, true)).join('')}
+    </div>`;
+
+    $('sheets').innerHTML = html;
+  }
+
+  async function unlock(){
+    if (!LOCAL){
+      const pw = prompt('Organiser password:');
+      if (pw == null) return;
+      const ok = await authenticate(pw);
+      if (!ok){ alert('Incorrect password (or run on the deployed Netlify site).'); return; }
+    }
+    $('gate').style.display = 'none';
+    $('toolbar').style.display = 'flex';
+    await (typeof loadRoster === 'function' ? loadRoster() : Promise.resolve());  // live rosters (Blobs)
+    if (typeof refreshSchedule === 'function') await refreshSchedule();            // live slots/times
+    render();
+  }
+
+  $('unlockBtn').addEventListener('click', unlock);
+})();
+</script>
+<script src="../../nav.js"></script>
+</body>
+</html>

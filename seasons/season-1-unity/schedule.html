@@ -7,6 +7,13 @@
 <meta name="description" content="Volleyball Premier League Season 1 (UNITY) fixtures — double round robin, 20 league matches, plus semifinals and grand final.">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="season.css">
+<style>
+  /* Slot rows — the 2 courts side by side (schedule page) */
+  .slot-court{ display:flex; flex-direction:column; gap:6px; }
+  .court-chip{ align-self:flex-start; font-size:11px; font-weight:800; letter-spacing:.03em; text-transform:uppercase;
+    color:var(--court-2); background:#EAF0FF; border:1px solid #d5e0ff; padding:3px 9px; border-radius:100px; }
+  .slot-time{ font-size:12.5px; font-weight:700; color:var(--court-2); background:#EAF0FF; padding:4px 10px; border-radius:100px; }
+</style>
 </head>
 <body>
 
@@ -17,7 +24,7 @@
       <a href="index.html">Players &amp; Teams</a>
       <a href="schedule.html">Schedule</a>
       <a href="results.html">Results</a>
-      <a href="rules.html">Rules</a>
+      <a href="tournament.html">Rules</a>
     </div>
     <a href="results.html" class="nav-cta">Standings</a>
   </div>
@@ -28,14 +35,35 @@
     <div>
       <span class="eyebrow">Season 1 · UNITY · Fixtures</span>
       <h1 style="font-size:clamp(32px,5vw,52px);">Schedule</h1>
-      <p class="lead" id="fmtNote">Double round robin — every team plays each other twice (8 matches each). Dates, times and venues are announced below.</p>
+      <p class="lead" id="fmtNote">Double round robin — every team plays each other twice (8 matches each), all on <strong>one day</strong>. Match times across the day are being finalised.</p>
     </div>
   </div>
 </header>
 
-<section class="section" style="padding-top:40px;">
+<!-- ============ EVENT DAY ============ -->
+<section class="section" id="eventday" style="padding-top:32px; padding-bottom:8px;">
   <div class="wrap">
-    <div class="sched-note" id="schedNote">📅 Times &amp; venues will be confirmed once finalised — check back here, and see live results on the <a href="results.html">Results page</a>.</div>
+    <div class="sched-band" style="align-items:center;">
+      <div>
+        <span class="tag" style="color:#FFB088; text-transform:uppercase; font-weight:700; font-size:12.5px; letter-spacing:.06em;">Event day</span>
+        <h3 style="margin-top:8px;">Saturday, 22 August 2026</h3>
+        <p>One day at Hawkesbury Indoor Stadium: <b>League 1–4 PM</b> · <b>Semifinals 4–5 PM</b> · <b>Grand Final 5–6 PM</b>.</p>
+        <div class="hero-ctas" style="margin-top:16px;">
+          <a href="https://maps.app.goo.gl/Fi8rPukt21RZ1UJQ9" target="_blank" rel="noopener noreferrer" class="btn btn-primary">📍 Get directions</a>
+        </div>
+      </div>
+      <div class="sched-facts">
+        <div class="sched-fact"><span class="k">Date</span><span class="v">Sat, 22 Aug 2026</span></div>
+        <div class="sched-fact"><span class="k">Time</span><span class="v">1:00 – 6:00 PM</span></div>
+        <div class="sched-fact"><span class="k">Venue</span><span class="v">Hawkesbury Indoor Stadium</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:28px;">
+  <div class="wrap">
+    <div class="sched-note" id="schedNote">📅 The tournament is on <strong>Sat 22 Aug 2026, 1–6 PM</strong> at <strong>Hawkesbury Indoor Stadium</strong> (directions above) — League 1–4 PM, then Semifinals &amp; Grand Final 4–6 PM. See live results on the <a href="results.html">Results page</a>.</div>
     <div id="leagueRounds"></div>
 
     <div class="section-head" style="margin:44px 0 20px;">
@@ -68,15 +96,16 @@
     return `<span class="fx-team tbd"><span class="fx-dot"></span><span>${fallback || 'TBD'}</span></span>`;
   }
   function metaLine(m) {
-    const bit = (v, tbd) => `<span>${v ? v : '<em>' + tbd + '</em>'}</span>`;
-    return `<div class="fx-meta">
-      ${bit(m.day, 'Day TBD')} ${bit(m.date, 'Date TBD')} ${bit(m.time, 'Time TBD')}
-      <span>📍 ${m.venue ? m.venue : '<em>Venue TBD</em>'}</span>
-    </div>`;
+    const parts = [];
+    if (m.day) parts.push(`<span>${m.day}</span>`);
+    if (m.date) parts.push(`<span>${m.date}</span>`);
+    parts.push(`<span>${m.time ? m.time : '<em>Time TBD</em>'}</span>`);
+    parts.push(`<span>📍 ${m.venue ? m.venue : '<em>Venue TBD</em>'}</span>`);
+    return `<div class="fx-meta">${parts.join(' ')}</div>`;
   }
-  function fixtureCard(m, homeLabel, awayLabel) {
+  function fixtureCard(m, homeLabel, awayLabel, displayId) {
     return `<div class="fx-card">
-      <div class="fx-id">${m.id}</div>
+      <div class="fx-id">${displayId != null ? displayId : m.id}</div>
       <div class="fx-teams">
         ${side(m.home ?? null, homeLabel)}
         <span class="fx-vs">vs</span>
@@ -86,29 +115,68 @@
     </div>`;
   }
 
+  // Group matches into slots by their "order" (2 matches per slot = the 2 courts).
+  function slotsOf(matches) {
+    const groups = new Map();
+    matches.forEach(m => {
+      const k = (m.order != null ? m.order : 9999);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(m);
+    });
+    return [...groups.entries()].sort((a, b) => a[0] - b[0]).map(([order, ms], i) => ({ order, ms, no: i + 1 }));
+  }
+  function restingNames(ms) {
+    const playing = new Set();
+    ms.forEach(m => {
+      const rt = resolveTeams(m);
+      [rt.home, rt.away, m.home, m.away].forEach(id => { if (id) playing.add(id); });
+    });
+    return (typeof TEAMS !== 'undefined' ? TEAMS : []).filter(t => !playing.has(t.id)).map(t => t.name);
+  }
+  // Wrap a fixture card with its court label.
+  function courtCard(inner, courtNo) {
+    return `<div class="slot-court"><span class="court-chip">Court ${courtNo}</span>${inner}</div>`;
+  }
+  // Within a slot, order the cards by their assigned court (1 then 2).
+  function byCourt(a, b) { return ((a.court ?? 1) - (b.court ?? 1)) || a.id.localeCompare(b.id); }
+  function slotHead(name, timeBit, extra) {
+    return `<div class="round-head">
+      <span class="round-name">${name}</span>
+      ${timeBit ? `<span class="slot-time">🕒 ${timeBit}</span>` : ''}
+      ${extra || ''}</div>`;
+  }
+
   function render() {
-    const rounds = [...new Set(leagueMatches().map(m => m.round))].sort((a, b) => a - b);
-    document.getElementById('leagueRounds').innerHTML = rounds.map(r => {
-      const ms = leagueMatches().filter(m => m.round === r);
-      const bye = byeTeam(r);
-      const byeT = bye ? team(bye) : null;
-      return `<div class="round-block">
-        <div class="round-head">
-          <span class="round-name">Round ${r}</span>
-          ${byeT ? `<span class="round-bye">Bye · ${byeT.name}</span>` : ''}
-        </div>
-        <div class="fx-grid">${ms.map(m => fixtureCard(m)).join('')}</div>
-      </div>`;
+    // League — grouped into slots (2 courts side by side), in running order.
+    // Cards are numbered M1, M2, … following the running order (not the fixed
+    // match id), so reordering renumbers them to match the new schedule.
+    let mno = 0;
+    const leagueSlots = slotsOf(leagueMatches());
+    document.getElementById('leagueRounds').innerHTML = leagueSlots.map(slot => {
+      const timeBit = slot.ms.map(m => m.time).find(Boolean);
+      const rest = restingNames(slot.ms);
+      const cards = slot.ms.slice().sort(byCourt).map(m => {
+        mno++;
+        return courtCard(fixtureCard(m, undefined, undefined, 'M' + mno), (m.court != null ? m.court : 1));
+      }).join('');
+      const restTag = rest.length ? `<span class="round-bye">Resting · ${rest.join(', ')}</span>` : '';
+      return `<div class="round-block">${slotHead('Slot ' + slot.no, timeBit, restTag)}<div class="fx-grid">${cards}</div></div>`;
     }).join('');
 
-    document.getElementById('koFixtures').innerHTML = `<div class="fx-grid">` + knockoutMatches().map(m => {
-      const rt = resolveTeams(m);
-      const card = fixtureCard(
-        { ...m, home: rt.home, away: rt.away },
-        slotLabel(m.src.home), slotLabel(m.src.away)
-      );
-      return card.replace('<div class="fx-id">' + m.id + '</div>', `<div class="fx-id ko">${m.label}</div>`);
-    }).join('') + `</div>`;
+    // Knockouts — the two semis share a slot (2 courts); the final is its own.
+    const koSlots = slotsOf(knockoutMatches());
+    document.getElementById('koFixtures').innerHTML = koSlots.map(slot => {
+      const timeBit = slot.ms.map(m => m.time).find(Boolean);
+      const name = slot.ms.every(m => m.phase === 'semifinal') ? 'Semifinals'
+        : (slot.ms.some(m => m.phase === 'final') ? 'Grand Final' : 'Knockouts');
+      const cards = slot.ms.slice().sort(byCourt).map(m => {
+        const rt = resolveTeams(m);
+        const card = fixtureCard({ ...m, home: rt.home, away: rt.away }, slotLabel(m.src.home), slotLabel(m.src.away))
+          .replace('<div class="fx-id">' + m.id + '</div>', `<div class="fx-id ko">${m.label}</div>`);
+        return courtCard(card, (m.court != null ? m.court : 1));
+      }).join('');
+      return `<div class="round-block">${slotHead(name, timeBit, '')}<div class="fx-grid">${cards}</div></div>`;
+    }).join('');
   }
 
   async function boot() { await refreshSchedule(); render(); }

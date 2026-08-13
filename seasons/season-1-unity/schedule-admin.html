@@ -14,11 +14,12 @@
   <div class="auc-top">
     <div>
       <h1>Season 1 · Schedule Admin</h1>
-      <div class="sub">Update match days, dates, times, venues and scores. Saves live to Netlify — the Schedule &amp; Results pages update automatically.</div>
+      <div class="sub">Update match days, dates, times, venues and scores. Set the <b>Order (slot)</b> to arrange the running order — two matches with the <b>same</b> slot number play in parallel, one per <b>Court</b> (set Court 1/2). Saves live to Netlify — the Schedule &amp; Results pages update automatically.</div>
     </div>
     <div class="auc-actions">
       <a class="auc-btn" href="results.html">View results →</a>
       <a class="auc-btn" href="schedule.html">View schedule →</a>
+      <a class="auc-btn" href="print-sheets.html">🖨️ Print pack →</a>
     </div>
   </div>
 
@@ -60,9 +61,11 @@
     return `<div class="adm-row" data-id="${m.id}">
       <div class="adm-teams"><span class="adm-id">${m.id}</span> ${teamsHtml}</div>
       <div class="adm-fields">
+        <div><label>Order (slot)</label><input id="ord-${m.id}" type="number" min="1" placeholder="e.g. 1"></div>
+        <div><label>Court</label><select id="crt-${m.id}"><option value="1">Court 1</option><option value="2">Court 2</option></select></div>
         <div><label>Day</label><input id="d-${m.id}" type="text" placeholder="e.g. Tuesday"></div>
         <div><label>Date</label><input id="dt-${m.id}" type="text" placeholder="e.g. 12 Aug 2026"></div>
-        <div><label>Time</label><input id="tm-${m.id}" type="text" placeholder="e.g. 7:00 PM"></div>
+        <div><label>Time</label><input id="tm-${m.id}" type="text" placeholder="${m.time ? 'auto: ' + m.time : 'e.g. 1:00 PM'}"></div>
         <div><label>Venue</label><input id="v-${m.id}" type="text" placeholder="e.g. Court 3"></div>
         ${scoreHtml}
       </div>
@@ -71,12 +74,13 @@
   function teamName(id, fallback){ const t=id?teamById(id):null; return t?t.name:(fallback||'TBD'); }
 
   function renderEditor(){
-    let html = `<div class="section-head" style="margin:8px 0 14px;"><span class="tag">League — 20 matches</span></div>`;
-    leagueMatches().forEach(m => {
+    const byOrder = (a, b) => ((a.order ?? 0) - (b.order ?? 0)) || a.id.localeCompare(b.id);
+    let html = `<div class="section-head" style="margin:8px 0 14px;"><span class="tag">League — 20 matches · sorted by slot</span></div>`;
+    leagueMatches().slice().sort(byOrder).forEach(m => {
       html += fieldsFor(m, `${teamName(m.home)} <span class="fx-vs">vs</span> ${teamName(m.away)}`);
     });
     html += `<div class="section-head" style="margin:22px 0 14px;"><span class="tag">Knockouts — best of 3</span></div>`;
-    knockoutMatches().forEach(m => {
+    knockoutMatches().slice().sort(byOrder).forEach(m => {
       const rt = resolveTeams(m);
       html += fieldsFor(m, `${m.label}: ${teamName(rt.home, slotLabel(m.src.home))} <span class="fx-vs">vs</span> ${teamName(rt.away, slotLabel(m.src.away))}`);
     });
@@ -85,9 +89,11 @@
 
     // prefill from current live data (already applied to MATCHES by boot())
     MATCHES.forEach(m => {
+      if ($('ord-'+m.id)) $('ord-'+m.id).value = (m.order != null ? m.order : '');
+      if ($('crt-'+m.id)) $('crt-'+m.id).value = (m.court != null ? String(m.court) : '1');
       if ($('d-'+m.id))  $('d-'+m.id).value  = m.day || '';
       if ($('dt-'+m.id)) $('dt-'+m.id).value = m.date || '';
-      if ($('tm-'+m.id)) $('tm-'+m.id).value = m.time || '';
+      if ($('tm-'+m.id)) $('tm-'+m.id).value = '';   // blank → time auto-follows the slot; type only to override
       if ($('v-'+m.id))  $('v-'+m.id).value  = m.venue || '';
       if (m.phase === 'league') {
         if (m.result && m.result.home != null) { $('sh-'+m.id).value = m.result.home; $('sa-'+m.id).value = m.result.away; }
@@ -106,8 +112,10 @@
     const overrides = {};
     MATCHES.forEach(m => {
       const o = {};
-      const day=val('d-'+m.id), date=val('dt-'+m.id), time=val('tm-'+m.id), venue=val('v-'+m.id);
+      const day=val('d-'+m.id), date=val('dt-'+m.id), time=val('tm-'+m.id), venue=val('v-'+m.id), order=val('ord-'+m.id), court=val('crt-'+m.id);
       if (day) o.day=day; if (date) o.date=date; if (time) o.time=time; if (venue) o.venue=venue;
+      if (order !== '') o.order = Number(order);
+      if (court !== '') o.court = Number(court);
       if (m.phase === 'league') {
         const h=val('sh-'+m.id), a=val('sa-'+m.id);
         if (h!=='' && a!=='') o.result = { home:Number(h), away:Number(a) };
@@ -146,22 +154,41 @@
   async function save(){
     if (!token){ toast('Unlock first'); return; }
     $('saveNote').textContent = 'Saving…';
-    const ok = await saveOverrides(collectOverrides(), token);
-    if (ok){ toast('Saved ✓ — live on Schedule & Results'); $('saveNote').textContent='Saved ✓'; }
+    const ov = collectOverrides();
+    const ok = await saveOverrides(ov, token);
+    if (ok){
+      // reflect the saved values in memory and re-render so the rows re-sort
+      // into the new running order (otherwise it looks like nothing moved).
+      if (typeof applyOverrides === 'function') applyOverrides(ov);
+      renderEditor();
+      toast(LOCAL ? 'Saved locally ✓ (this browser only)' : 'Saved ✓ — live on Schedule & Results');
+      $('saveNote').textContent='Saved ✓';
+    }
     else { toast('Save failed (session expired? unlock again, or deploy on Netlify)'); $('saveNote').textContent='Save failed'; }
   }
 
+  // Local test mode (localhost / file://): no password, saves to this browser only.
+  const LOCAL = (typeof IS_LOCAL !== 'undefined') ? IS_LOCAL
+    : (location.protocol === 'file:' || ['localhost','127.0.0.1','::1'].includes(location.hostname));
+
+  function enterEdit(local){
+    $('modeBar').className = 'mode-bar editing';
+    $('modeBar').innerHTML = local
+      ? '<span class="mode-tag">🧪 LOCAL TEST MODE — no password. Changes save to THIS browser only, not the live site.</span>'
+      : '<span class="mode-tag">✏️ Editing — changes save live when you click Save</span>';
+    $('editor').style.display = 'block';
+    renderEditor();
+  }
+
   async function unlock(){
+    if (LOCAL){ token = 'local'; enterEdit(true); return; }   // bypass password locally
     const pw = prompt('Organiser password:');
     if (pw == null) return;
     toast('Checking…');
     const t = await authenticate(pw);
     if (t !== null){
       token = t; sessionStorage.setItem('vpl-s1-token', t);
-      $('modeBar').className = 'mode-bar editing';
-      $('modeBar').innerHTML = '<span class="mode-tag">✏️ Editing — changes save live when you click Save</span>';
-      $('editor').style.display = 'block';
-      renderEditor();
+      enterEdit(false);
     } else { toast('Incorrect password (or run on the deployed Netlify site)'); }
   }
 
@@ -170,12 +197,8 @@
   // load current live data first (so prefill reflects what's online)
   (async () => {
     await refreshSchedule();
-    if (token) { // already unlocked this session
-      $('modeBar').className = 'mode-bar editing';
-      $('modeBar').innerHTML = '<span class="mode-tag">✏️ Editing — changes save live when you click Save</span>';
-      $('editor').style.display = 'block';
-      renderEditor();
-    }
+    if (LOCAL){ token = token || 'local'; enterEdit(true); return; }  // auto-open locally
+    if (token) enterEdit(false); // already unlocked this session
   })();
 })();
 </script>
