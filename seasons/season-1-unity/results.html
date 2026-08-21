@@ -7,6 +7,26 @@
 <meta name="description" content="Volleyball Premier League Season 1 (UNITY) — league standings, match results, and the knockout bracket.">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="season.css">
+<style>
+  .slot-time{ font-size:12.5px; font-weight:700; color:var(--court-2); background:#EAF0FF; padding:4px 10px; border-radius:100px; }
+  .rs-day-divider{ margin:26px 0 12px; font-size:13px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-soft, #5b6b8c); display:flex; align-items:center; gap:10px; }
+  .rs-day-divider::after{ content:""; flex:1; height:1px; background:currentColor; opacity:.25; }
+  /* per-team results cards */
+  .tr-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:16px; }
+  .tr-card{ background:var(--card,#fff); border:1px solid var(--line,#e7ecf5); border-radius:16px; padding:14px 16px; }
+  .tr-head{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding-bottom:10px; margin-bottom:6px; border-bottom:1px solid var(--line,#e7ecf5); }
+  .tr-record{ font-size:12px; font-weight:800; color:var(--ink-soft,#5b6b8c); white-space:nowrap; }
+  .tr-row{ display:flex; align-items:center; gap:10px; padding:6px 0; font-size:14px; }
+  .tr-row + .tr-row{ border-top:1px dashed var(--line,#eef1f7); }
+  .tr-opp{ flex:1; min-width:0; }
+  .tr-opp span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr-score{ font-weight:800; font-variant-numeric:tabular-nums; }
+  .tr-tag{ font-size:11px; font-weight:800; min-width:64px; text-align:right; color:var(--ink-soft,#5b6b8c); }
+  .tr-row.win .tr-score, .tr-row.win .tr-tag{ color:#1a7f4b; }
+  .tr-row.loss .tr-score, .tr-row.loss .tr-tag{ color:#b23b3b; }
+</style>
 </head>
 <body>
 
@@ -67,6 +87,13 @@
       <h2 style="font-size:clamp(24px,3vw,32px);">League matches</h2>
     </div>
     <div id="leagueResults"></div>
+
+    <div class="section-head" style="margin:44px 0 18px;">
+      <span class="tag">By team</span>
+      <h2 style="font-size:clamp(24px,3vw,32px);">Each team's matches</h2>
+      <p>Every fixture for each team in one place — played scores and what's still to come.</p>
+    </div>
+    <div id="teamResults" class="tr-grid"></div>
   </div>
 </section>
 
@@ -144,23 +171,73 @@
     </div>`;
   }).join('');
 
-  /* ---- league match results ---- */
-  const roundsList = [...new Set(leagueMatches().map(m => m.round))].sort((a, b) => a - b);
-  document.getElementById('leagueResults').innerHTML = roundsList.map(r => {
-    const ms = leagueMatches().filter(m => m.round === r);
-    return `<div class="round-block">
-      <div class="round-head"><span class="round-name">Round ${r}</span></div>
-      <div class="fx-grid">${ms.map(m => {
-        const res = leagueResult(m);
-        const H = teamById(m.home), A = teamById(m.away);
-        const hw = res && res.winner === m.home, aw = res && res.winner === m.away;
-        return `<div class="fx-card">
-          <div class="fx-id">${m.id}</div>
-          <div class="rs-row ${hw ? 'win' : ''}"><span class="fx-team"><img src="${H.logo}" alt=""><span>${H.name}</span></span><b>${res ? res.home : '–'}</b></div>
-          <div class="rs-row ${aw ? 'win' : ''}"><span class="fx-team"><img src="${A.logo}" alt=""><span>${A.name}</span></span><b>${res ? res.away : '–'}</b></div>
-          <div class="fx-meta"><span>${res ? '✓ Result' : (m.date || m.time ? [m.day, m.date, m.time].filter(Boolean).join(' · ') : 'Not played yet')}</span></div>
-        </div>`;
-      }).join('')}</div>
+  /* ---- league match results (in running order, split by day) ---- */
+  const lmSorted = leagueMatches().slice().sort((a, b) =>
+    (a.order - b.order) || ((a.court ?? 1) - (b.court ?? 1)) || a.id.localeCompare(b.id));
+  const slotMap = new Map();
+  lmSorted.forEach(m => { if (!slotMap.has(m.order)) slotMap.set(m.order, []); slotMap.get(m.order).push(m); });
+  const slotEntries = [...slotMap.entries()].sort((a, b) => a[0] - b[0]);
+  let lastDay = null, slotNo = 0;
+  document.getElementById('leagueResults').innerHTML = slotEntries.map(([order, ms]) => {
+    slotNo++;
+    const day = ms.map(m => m.day).find(Boolean) || '';
+    const date = ms.map(m => m.date).find(Boolean) || '';
+    const time = ms.map(m => m.time).find(Boolean) || '';
+    let dayHead = '';
+    if (day && day !== lastDay) {
+      lastDay = day;
+      dayHead = `<div class="rs-day-divider">${[day, date].filter(Boolean).join(' · ')}</div>`;
+    }
+    const cards = ms.map(m => {
+      const res = leagueResult(m);
+      const H = teamById(m.home), A = teamById(m.away);
+      const hw = res && res.winner === m.home, aw = res && res.winner === m.away;
+      return `<div class="fx-card">
+        <div class="fx-id">${m.id}</div>
+        <div class="rs-row ${hw ? 'win' : ''}"><span class="fx-team"><img src="${H.logo}" alt=""><span>${H.name}</span></span><b>${res ? res.home : '–'}</b></div>
+        <div class="rs-row ${aw ? 'win' : ''}"><span class="fx-team"><img src="${A.logo}" alt=""><span>${A.name}</span></span><b>${res ? res.away : '–'}</b></div>
+        <div class="fx-meta"><span>${res ? '✓ Result' : (m.date || m.time ? [m.day, m.date, m.time].filter(Boolean).join(' · ') : 'Not played yet')}</span></div>
+      </div>`;
+    }).join('');
+    const timeBit = time ? `<span class="slot-time">🕒 ${time}</span>` : '';
+    return `${dayHead}<div class="round-block">
+      <div class="round-head"><span class="round-name">Slot ${slotNo}</span>${timeBit}</div>
+      <div class="fx-grid">${cards}</div></div>`;
+  }).join('');
+
+  /* ---- per-team results (each team's matches in one place) ---- */
+  document.getElementById('teamResults').innerHTML = rows.map(r => {
+    const t = teamById(r.id);
+    const diff = r.PF - r.PA;
+    const mine = leagueMatches().filter(m => m.home === r.id || m.away === r.id)
+      .sort((a, b) => (a.order - b.order) || a.id.localeCompare(b.id));
+    const list = mine.map(m => {
+      const isHome = m.home === r.id;
+      const opp = teamById(isHome ? m.away : m.home);
+      const res = leagueResult(m);
+      let cls = '', score = '–', tag;
+      if (res) {
+        const mineScore = isHome ? res.home : res.away;
+        const oppScore = isHome ? res.away : res.home;
+        const won = res.winner === r.id;
+        cls = won ? 'win' : 'loss';
+        score = `${mineScore}–${oppScore}`;
+        tag = won ? 'Won' : 'Lost';
+      } else {
+        tag = [m.day, m.time].filter(Boolean).join(' ') || 'TBD';
+      }
+      return `<div class="tr-row ${cls}">
+        <span class="fx-team tr-opp"><img src="${opp.logo}" alt=""><span>${opp.name}</span></span>
+        <span class="tr-score">${score}</span>
+        <span class="tr-tag">${tag}</span>
+      </div>`;
+    }).join('');
+    return `<div class="tr-card">
+      <div class="tr-head">
+        <span class="fx-team"><img src="${t.logo}" alt=""><span>${t.name}</span></span>
+        <span class="tr-record">${r.W}W · ${r.L}L · ${diff > 0 ? '+' + diff : diff} · ${r.Pts} pts</span>
+      </div>
+      ${list}
     </div>`;
   }).join('');
   }

@@ -219,17 +219,42 @@ function _defaultOrder(m) {
 // Single-day event at one venue (court booked 1–6 PM). Rough slots:
 //   League 1:00–4:00 PM (10 slots ≈ 18 min), Semifinals 4:00–5:00, Grand Final 5:00–6:00.
 const DEFAULT_VENUE = 'Hawkesbury Indoor Stadium';
+// Knockout / fallback slot times (used for knockouts and for any day that has
+// no explicit day-schedule below).
 const SLOT_TIMES = {
   1: '1:00 PM', 2: '1:18 PM', 3: '1:36 PM', 4: '1:54 PM', 5: '2:12 PM',
   6: '2:30 PM', 7: '2:48 PM', 8: '3:06 PM', 9: '3:24 PM', 10: '3:42 PM',
   11: '4:00 PM',   // Semifinals (best of 3) · 4–5 PM
   12: '5:00 PM',   // Grand Final (best of 3) · 5–6 PM
 };
+// Per-day league slot times. A league match's time comes from its slot's
+// position WITHIN its day (not the global running order), so every day of play
+// starts fresh at 1:00 PM. The main event day plays 8 slots of 20 min starting
+// 1:00 PM, with a 15-min break after the 4th slot (2:20–2:35 PM); the league
+// wraps ~3:55 PM, then Semifinals (4 PM) and Grand Final (5 PM).
+// Knockouts keep SLOT_TIMES. Explicit per-match time overrides always win.
+const DAY_SLOT_TIMES = {
+  Saturday: ['1:00 PM', '1:20 PM', '1:40 PM', '2:00 PM',
+             '2:35 PM', '2:55 PM', '3:15 PM', '3:35 PM'],
+};
+// Distinct league slot orders used on a given day, ascending → slot positions.
+function _dayOrders(day) {
+  return [...new Set(leagueMatches().filter(m => m.day === day).map(m => m.order))]
+    .sort((a, b) => a - b);
+}
+// Time for one match: league → its day's schedule by slot position; else SLOT_TIMES.
+function _matchTime(m) {
+  if (m.phase !== 'league') return SLOT_TIMES[m.order] || '';
+  const tbl = DAY_SLOT_TIMES[m.day];
+  if (!tbl) return SLOT_TIMES[m.order] || '';
+  const idx = _dayOrders(m.day).indexOf(m.order);
+  return (idx >= 0 && tbl[idx]) ? tbl[idx] : (SLOT_TIMES[m.order] || '');
+}
 MATCHES.forEach(m => {
   const ord = (m.order != null ? m.order : _defaultOrder(m));
   m._def = {
     day: m.day || '', date: m.date || '',
-    time: m.time || '',          // explicit file time only; slot time is applied by order
+    time: m.time || '',          // explicit file time only; slot time is applied by position
     venue: m.venue || DEFAULT_VENUE,
     result: m.result != null ? m.result : null,
     order: ord,
@@ -237,8 +262,10 @@ MATCHES.forEach(m => {
   };
   m.order = m._def.order;   // ensure defined even before live overrides load
   m.court = m._def.court;
-  m.time = m._def.time || (SLOT_TIMES[m.order] || '');   // time tracks the slot
+  m.day   = m._def.day;     // day is needed to resolve the slot time
 });
+// Second pass: day-based slot times need every match's day/order set first.
+MATCHES.forEach(m => { m.time = m._def.time || _matchTime(m); });
 
 function applyOverrides(ov) {
   MATCHES.forEach(m => {
@@ -248,10 +275,12 @@ function applyOverrides(ov) {
     m.day   = (o && o.day   != null) ? o.day   : m._def.day;
     m.date  = (o && o.date  != null) ? o.date  : m._def.date;
     m.venue = (o && o.venue != null) ? o.venue : m._def.venue;
-    // time: an explicit override wins; otherwise it tracks the (possibly reordered) slot
-    m.time  = (o && o.time  != null) ? o.time  : (m._def.time || SLOT_TIMES[m.order] || '');
     m.result = (o && o.result !== undefined) ? o.result : m._def.result;
+    // remember an explicit time override; the slot time is resolved in the 2nd pass
+    m._timeOv = (o && o.time != null) ? o.time : (m._def.time || null);
   });
+  // second pass: day-based slot times need every match's day/order set first
+  MATCHES.forEach(m => { m.time = m._timeOv || _matchTime(m); });
 }
 // Local test mode: on localhost / file:// there is no Netlify auth/functions,
 // so the admin password is bypassed and overrides are read/written to this
