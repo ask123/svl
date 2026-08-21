@@ -160,15 +160,16 @@
         return courtCard(fixtureCard(m, undefined, undefined, 'M' + mno), (m.court != null ? m.court : 1));
       }).join('');
       const restTag = rest.length ? `<span class="round-bye">Resting · ${rest.join(', ')}</span>` : '';
-      return `<div class="round-block">${slotHead('Slot ' + slot.no, timeBit, restTag)}<div class="fx-grid">${cards}</div></div>`;
+      return `<div class="round-block">${slotHead('Slot ' + slotNumberOf(slot.ms[0]), timeBit, restTag)}<div class="fx-grid">${cards}</div></div>`;
     }).join('');
 
     // Knockouts — the two semis share a slot (2 courts); the final is its own.
     const koSlots = slotsOf(knockoutMatches());
     document.getElementById('koFixtures').innerHTML = koSlots.map(slot => {
       const timeBit = slot.ms.map(m => m.time).find(Boolean);
-      const name = slot.ms.every(m => m.phase === 'semifinal') ? 'Semifinals'
+      const koName = slot.ms.every(m => m.phase === 'semifinal') ? 'Semifinals'
         : (slot.ms.some(m => m.phase === 'final') ? 'Grand Final' : 'Knockouts');
+      const name = 'Slot ' + slotNumberOf(slot.ms[0]) + ' · ' + koName;
       const cards = slot.ms.slice().sort(byCourt).map(m => {
         const rt = resolveTeams(m);
         const card = fixtureCard({ ...m, home: rt.home, away: rt.away }, slotLabel(m.src.home), slotLabel(m.src.away))

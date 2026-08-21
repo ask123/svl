@@ -234,6 +234,9 @@ const SLOT_TIMES = {
 // wraps ~3:55 PM, then Semifinals (4 PM) and Grand Final (5 PM).
 // Knockouts keep SLOT_TIMES. Explicit per-match time overrides always win.
 const DAY_SLOT_TIMES = {
+  // Played early on Wednesday evening (single court), 7:00–9:00 PM.
+  Wednesday: ['7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'],
+  // Main event day, 1:00–4:00 PM, 15-min break after the 4th slot.
   Saturday: ['1:00 PM', '1:20 PM', '1:40 PM', '2:00 PM',
              '2:35 PM', '2:55 PM', '3:15 PM', '3:35 PM'],
 };
@@ -242,13 +245,21 @@ function _dayOrders(day) {
   return [...new Set(leagueMatches().filter(m => m.day === day).map(m => m.order))]
     .sort((a, b) => a - b);
 }
-// Time for one match: league → its day's schedule by slot position; else SLOT_TIMES.
+// Time for one match: knockouts are fixed (Slot 14 semis 4 PM, Slot 15 final
+// 5 PM); league → its day's schedule by slot position; else SLOT_TIMES.
 function _matchTime(m) {
-  if (m.phase !== 'league') return SLOT_TIMES[m.order] || '';
+  if (m.phase === 'semifinal') return '4:00 PM';
+  if (m.phase === 'final')     return '5:00 PM';
   const tbl = DAY_SLOT_TIMES[m.day];
   if (!tbl) return SLOT_TIMES[m.order] || '';
   const idx = _dayOrders(m.day).indexOf(m.order);
   return (idx >= 0 && tbl[idx]) ? tbl[idx] : (SLOT_TIMES[m.order] || '');
+}
+// Global slot number across the whole event (league + knockouts), by ascending
+// running order — so the two semis read as Slot 14 and the final as Slot 15.
+function slotNumberOf(m) {
+  const orders = [...new Set(MATCHES.map(x => x.order))].sort((a, b) => a - b);
+  return orders.indexOf(m.order) + 1;
 }
 MATCHES.forEach(m => {
   const ord = (m.order != null ? m.order : _defaultOrder(m));
@@ -370,3 +381,4 @@ window.knockoutSetsWon = knockoutSetsWon;
 window.resolveTeams = resolveTeams;
 window.slotLabel = slotLabel;
 window.byeTeam = byeTeam;
+window.slotNumberOf = slotNumberOf;

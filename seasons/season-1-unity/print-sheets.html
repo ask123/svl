@@ -197,8 +197,8 @@
       const sorted = s.ms.slice().sort(byCourt);
       return `<tr><td class="slot">${label}</td><td class="time">${timeOf(s)}</td><td>${cell(sorted[0])}</td><td>${cell(sorted[1])}</td></tr>`;
     };
-    const league = leagueSlots.map(s => trow('Slot ' + s.no, s)).join('');
-    const ko = koSlots.map(s => trow(s.ms.every(m => m.phase === 'semifinal') ? 'Semifinals' : 'Grand Final', s)).join('');
+    const league = leagueSlots.map(s => trow('Slot ' + slotNumberOf(s.ms[0]), s)).join('');
+    const ko = koSlots.map(s => trow('Slot ' + slotNumberOf(s.ms[0]) + ' · ' + (s.ms.every(m => m.phase === 'semifinal') ? 'Semifinals' : 'Grand Final'), s)).join('');
     return `<div class="sheet cover">
       <div class="big">Volleyball Premier League — Season 1 · UNITY</div>
       <div class="sub">Match Day · <b>Saturday 22 August 2026</b> · Hawkesbury Indoor Stadium · 2 courts</div>
@@ -230,7 +230,9 @@
   function slotBlock(slot, isKO){
     const timeBit = slot.ms.map(m=>m.time).find(Boolean);
     const rest = isKO ? [] : restingNames(slot.ms);
-    const title = isKO ? (slot.ms.every(m=>m.phase==='semifinal') ? 'Semifinals' : 'Grand Final') : ('Slot ' + slot.no);
+    const title = isKO
+      ? ('Slot ' + slotNumberOf(slot.ms[0]) + ' · ' + (slot.ms.every(m=>m.phase==='semifinal') ? 'Semifinals' : 'Grand Final'))
+      : ('Slot ' + slotNumberOf(slot.ms[0]));
     const rows = slot.ms.slice().sort(byCourt).map(m => matchRow(m, (m.court!=null?m.court:1))).join('');
     return `<div class="slot-block">
       <div class="slot-head"><span class="s">${title}</span>${timeBit?`<span class="tm">🕒 ${timeBit}</span>`:''}${rest.length?`<span class="rest">Resting · ${rest.join(', ')}</span>`:''}</div>
